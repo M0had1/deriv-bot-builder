@@ -9,9 +9,9 @@ type TOption = {
     language?: string;
 };
 
-const default_domain = 'tickshark.top';
+const default_domain = 'deriv.com';
 const host_map = {
-    'tickshark.top': 'tickshark.top'
+    'deriv.com': 'deriv.com'
 };
 
 let location_url: Location, default_language: string;
@@ -52,19 +52,19 @@ export const urlFor = (path: string, options: TOption = {}) => {
     const { legacy, language, query_string } = options;
 
     if (legacy && /^bot$/.test(path)) {
-        return `https://tickshark.top/`;
+        return `https://deriv.com/`;
     }
 
     const lang = language?.toLowerCase?.() ?? default_language;
-    let domain = `https://tickshark.top/`;
+    let domain = `https://deriv.com/`;
 
     if (legacy) {
         if (getPlatformFromUrl().is_staging_deriv_app) {
-            domain = domain.replace(/staging-app\.deriv\.com/, `tickshark.top/staging/${lang || 'en'}`);
+            domain = domain.replace(/staging-app\.deriv\.com/, `deriv.com/staging/${lang || 'en'}`);
         } else if (getPlatformFromUrl().is_deriv_app) {
-            domain = domain.replace(/app\.deriv\.com/, `tickshark.top/${lang || 'en'}`);
+            domain = domain.replace(/app\.deriv\.com/, `deriv.com/${lang || 'en'}`);
         } else {
-            domain = `https://tickshark.top/${lang || 'en'}/`;
+            domain = `https://deriv.com/${lang || 'en'}/`;
         }
     }
 
@@ -111,7 +111,7 @@ export const setUrlLanguage = (lang: string) => {
 };
 
 export const getStaticUrl = (path = '', is_document = false, is_eu_url = false) => {
-    const host = is_eu_url ? 'tickshark.top/' : 'tickshark.top';
+    const host = is_eu_url ? 'deriv.com/' : 'deriv.com';
     let lang = default_language?.toLowerCase();
 
     if (lang && lang !== 'en') {
@@ -122,7 +122,7 @@ export const getStaticUrl = (path = '', is_document = false, is_eu_url = false) 
 
     if (is_document) return `${host}/${normalizePath(path)}`;
 
-    if (host === 'tickshark.top' && lang.includes('_')) {
+    if (host === 'deriv.com' && lang.includes('_')) {
         lang = lang.replace('_', '-');
     }
 

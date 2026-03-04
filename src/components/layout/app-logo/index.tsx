@@ -7,6 +7,6 @@ export const AppLogo = () => {
 
     if (!isDesktop) return null;
     return (
-        <DerivLogo className='app-header__logo' href="https://tickshark.top" target='_blank'/>
+        <DerivLogo className='app-header__logo' />
     );
 };
