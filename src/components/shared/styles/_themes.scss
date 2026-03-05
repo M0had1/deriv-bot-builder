@@ -77,10 +77,10 @@
         --text-disabled: #{constants.$color-grey-1};
         --text-disabled-1: #{constants.$color-grey-6};
         --text-loss-danger: #{constants.$color-red-1};
-        --text-profit-success: #{constants.$color-green-1};
+        --text-profit-success: #{constants.$color-white};
         --text-warning: #{constants.$color-yellow};
         --text-red: #{constants.$color-red};
-        --text-green: #{constants.$color-green-6};
+        --text-green: #{constants.$color-white};
         --text-blue: #{constants.$color-blue-3};
         --text-info-blue: #{constants.$color-blue};
         --text-info-blue-background: #{constants.$color-blue-5};
@@ -93,8 +93,8 @@
         --text-hint: #{constants.$color-black-1};
 
         // Purchase
-        --purchase-main-1: #{constants.$color-green-1};
-        --purchase-section-1: #{constants.$color-green-2};
+        --purchase-main-1: #{constants.$color-white};
+        --purchase-section-1: #{constants.$color-white};
         --purchase-main-2: #{constants.$color-red-1};
         --purchase-section-2: #{constants.$color-red-4};
         --purchase-disabled-main: #{constants.$color-grey-3};
@@ -153,7 +153,7 @@
         --status-default: #{constants.$color-grey-3};
         --status-adjustment: #{constants.$color-grey-1};
         --status-danger: #{constants.$color-red-1};
-        --status-success: #{constants.$color-green-1};
+        --status-success: #{constants.$color-white};
         --status-warning: #{constants.$color-yellow};
         --status-warning-transparent: #{constants.$alpha-color-yellow-1};
         --status-transfer: #{constants.$color-orange};
@@ -186,7 +186,7 @@
         --badge-white: #{constants.$color-white};
         --badge-blue: #{constants.$color-blue-4};
         --badge-violet: #{constants.$color-blue-2};
-        --badge-green: #{constants.$color-green-3};
+        --badge-green: #{constants.$color-white};
 
         // TradersHub Banner
         --traders-hub-banner-border-color: #{constants.$color-grey-4};
@@ -197,7 +197,7 @@
 
         // Header
         --header-background-mt5: #{constants.$color-blue-8};
-        --header-background-others: #{constants.$color-green-7};
+        --header-background-others: #{constants.$color-black};
     }
 
     .theme--dark {
@@ -223,7 +223,7 @@
         --text-primary: #{constants.$color-white};
         --text-disabled: #{constants.$color-black-6};
         --text-disabled-1: #{constants.$color-black-6};
-        --text-profit-success: #{constants.$color-green-3};
+        --text-profit-success: #{constants.$color-white};
         --text-loss-danger: #{constants.$color-red-2};
         --text-red: #{constants.$color-red};
         --text-colored-background: #{constants.$color-white};
@@ -237,8 +237,8 @@
         --icon-black-plus: #{constants.$color-white};
 
         // Purchase
-        --purchase-main-1: #{constants.$color-green-3};
-        --purchase-section-1: #{constants.$color-green-4};
+        --purchase-main-1: #{constants.$color-white};
+        --purchase-section-1: #{constants.$color-white};
         --purchase-main-2: #{constants.$color-red-2};
         --purchase-section-2: #{constants.$color-red-3};
         --purchase-disabled-main: #{constants.$color-black-4};
@@ -300,7 +300,7 @@
         --status-danger: #{constants.$color-red-2};
         --status-warning: #{constants.$color-yellow};
         --status-warning-transparent: #{constants.$alpha-color-yellow-1};
-        --status-success: #{constants.$color-green-3};
+        --status-success: #{constants.$color-white};
         --status-transfer: #{constants.$color-orange};
         --status-info: #{constants.$color-blue};
         --status-colored-background: #{constants.$color-white};

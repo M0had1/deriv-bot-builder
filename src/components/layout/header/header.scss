@@ -2,11 +2,11 @@
 @use 'components/shared/styles/mixins' as *;
 
 .app-header {
-    color: #000000;
+    color: #ffffff;
 
     &__account-settings {
         padding-inline-end: 1.2rem;
-        border-inline-end: 0.1rem solid rgba(0, 0, 0, 0.2);
+        border-inline-end: 0.1rem solid rgba(255, 255, 255, 0.2);
     }
 
     &__account-settings,
@@ -14,18 +14,18 @@
     &__menu {
         svg > path,
         svg > g > path {
-            fill: #000000;
+            fill: #ffffff;
         }
     }
 
-    // Ensure all text in header is dark for green background
+    // Ensure all text in header is visible on dark background
     * {
-        color: #000000 !important;
+        color: #ffffff !important;
     }
 
     // Override button text colors
     button {
-        color: #000000 !important;
+        color: #ffffff !important;
     }
 }
 
@@ -401,7 +401,7 @@
     }
 
     &:hover svg {
-        filter: drop-shadow(0 4px 8px rgba(102, 255, 0, 0.3));
+        filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.2));
         transform: translateY(-1px);
     }
 

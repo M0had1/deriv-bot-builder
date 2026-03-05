@@ -9,14 +9,14 @@
   --background: #f8fbff;
   --surface: #ffffff;
   --border-light: #cce0ff;
-  --success-main: #17db4e;
+  --success-main: #404040;
   --error-main: #ff3b30;
   --highlight-yellow: #ffd700;
   --highlight-glow: rgba(255, 215, 0, 0.3);
 
   /* Chart Colors */
   --chart-blue: #4e79a7;
-  --chart-green: #59a14f;
+  --chart-green: #2a2a2a;
   --chart-red: #e15759;
 }
 
