@@ -44,7 +44,15 @@ interface MarketAnalysis {
     };
 }
 
-const LOW_RISK_MARKETS = ['digit_over_0', 'digit_under_9', 'differ_digit', 'rise_fall'];
+interface AISettings {
+    baseStake: number;
+    martingaleMultiplier: number;
+    confidenceThreshold: number;
+    selectedMarkets: string[];
+    enableRecovery: boolean;
+}
+
+const DEFAULT_MARKETS = ['digit_over_0', 'digit_under_9', 'differ_digit', 'rise_fall'];
 const RECOVERY_MARKETS = ['digit_over_4', 'digit_under_5', 'even_odd', 'rise_fall'];
 
 class AITradeAnalyzer {
@@ -79,8 +87,6 @@ class AITradeAnalyzer {
     private calculateMomentum(prices: number[]): number {
         if (prices.length < 2) return 0;
         const recent = prices.slice(-5);
-        const suma = recent.length;
-        const sum = recent.reduce((a, b) => a + b, 0);
         return ((recent[recent.length - 1] - recent[0]) / recent[0]) * 100;
     }
 
@@ -145,13 +151,13 @@ class AITradeAnalyzer {
         return ema;
     }
 
-    generateTradeSignal(analysis: MarketAnalysis): TradeSignal | null {
+    generateTradeSignal(analysis: MarketAnalysis, selectedMarkets: string[]): TradeSignal | null {
         const { rsi, momentum, trend, volatility, bollingerBands } = analysis;
         
-        // Strong signals with high confidence
         if (rsi < 30 && momentum < -2 && trend === 'downtrend' && volatility < 2) {
+            const market = selectedMarkets.includes('digit_over_0') ? 'digit_over_0' : selectedMarkets[0];
             return {
-                market: 'digit_over_0',
+                market,
                 type: 'CALL',
                 confidence: 0.85,
                 analysisData: {
@@ -165,8 +171,9 @@ class AITradeAnalyzer {
         }
 
         if (rsi > 70 && momentum > 2 && trend === 'uptrend' && volatility < 2) {
+            const market = selectedMarkets.includes('digit_under_9') ? 'digit_under_9' : selectedMarkets[0];
             return {
-                market: 'digit_under_9',
+                market,
                 type: 'PUT',
                 confidence: 0.85,
                 analysisData: {
@@ -180,8 +187,9 @@ class AITradeAnalyzer {
         }
 
         if (Math.abs(momentum) < 1 && volatility > 1.5) {
+            const market = selectedMarkets.includes('differ_digit') ? 'differ_digit' : selectedMarkets[0];
             return {
-                market: 'differ_digit',
+                market,
                 type: 'DIGIT',
                 confidence: 0.75,
                 analysisData: {
@@ -197,66 +205,45 @@ class AITradeAnalyzer {
         return null;
     }
 
-    generateRecoverySignal(lastLoss: number): TradeSignal {
-        const recoveryType = Math.floor(Math.random() * 4);
-        const signals: TradeSignal[] = [
-            {
+    generateRecoverySignal(recoveryMarkets: string[]): TradeSignal {
+        const recoveryType = Math.floor(Math.random() * Math.min(4, recoveryMarkets.length));
+        const selectedMarket = recoveryMarkets[recoveryType] || 'rise_fall';
+
+        const signals: { [key: string]: TradeSignal } = {
+            'digit_over_4': {
                 market: 'digit_over_4',
                 type: 'DIGIT',
                 confidence: 0.70,
-                analysisData: {
-                    momentum: 0,
-                    trend: 'recovery',
-                    volatility: 0,
-                    resistance: 0,
-                    support: 0,
-                },
+                analysisData: { momentum: 0, trend: 'recovery', volatility: 0, resistance: 0, support: 0 },
             },
-            {
+            'digit_under_5': {
                 market: 'digit_under_5',
                 type: 'DIGIT',
                 confidence: 0.70,
-                analysisData: {
-                    momentum: 0,
-                    trend: 'recovery',
-                    volatility: 0,
-                    resistance: 0,
-                    support: 0,
-                },
+                analysisData: { momentum: 0, trend: 'recovery', volatility: 0, resistance: 0, support: 0 },
             },
-            {
+            'even_odd': {
                 market: 'even_odd',
                 type: 'EVEN',
                 confidence: 0.65,
-                analysisData: {
-                    momentum: 0,
-                    trend: 'recovery',
-                    volatility: 0,
-                    resistance: 0,
-                    support: 0,
-                },
+                analysisData: { momentum: 0, trend: 'recovery', volatility: 0, resistance: 0, support: 0 },
             },
-            {
+            'rise_fall': {
                 market: 'rise_fall',
                 type: Math.random() > 0.5 ? 'RISE' : 'FALL',
                 confidence: 0.65,
-                analysisData: {
-                    momentum: 0,
-                    trend: 'recovery',
-                    volatility: 0,
-                    resistance: 0,
-                    support: 0,
-                },
+                analysisData: { momentum: 0, trend: 'recovery', volatility: 0, resistance: 0, support: 0 },
             },
-        ];
+        };
 
-        return signals[recoveryType];
+        return signals[selectedMarket] || signals['rise_fall'];
     }
 }
 
 const AITrader = observer(() => {
     const { client } = useStore();
     const [isRunning, setIsRunning] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
     const [tradeHistory, setTradeHistory] = useState<TradeHistory[]>([]);
     const [currentSignal, setCurrentSignal] = useState<TradeSignal | null>(null);
     const [marketAnalysis, setMarketAnalysis] = useState<MarketAnalysis | null>(null);
@@ -267,13 +254,21 @@ const AITrader = observer(() => {
         wins: 0,
         losses: 0,
         winRate: 0,
-        martingaleMultiplier: 2,
-        currentStake: 1,
     });
 
+    const [settings, setSettings] = useState<AISettings>({
+        baseStake: 1,
+        martingaleMultiplier: 2,
+        confidenceThreshold: 0.75,
+        selectedMarkets: DEFAULT_MARKETS,
+        enableRecovery: true,
+    });
+
+    const [tempSettings, setTempSettings] = useState<AISettings>(settings);
     const analyzerRef = useRef(new AITradeAnalyzer());
     const pricesRef = useRef<number[]>([]);
     const subscriptionRef = useRef<any>(null);
+    const currentStakeRef = useRef(settings.baseStake);
 
     const updateBalance = useCallback(() => {
         if (api_base?.api) {
@@ -291,11 +286,31 @@ const AITrader = observer(() => {
         return () => clearInterval(interval);
     }, [updateBalance]);
 
-    const executeRecoveryTrade = useCallback(async (martingaleAmount: number) => {
-        if (!api_base?.api) return;
+    const applySettings = useCallback(() => {
+        setSettings(tempSettings);
+        currentStakeRef.current = tempSettings.baseStake;
+        setShowSettings(false);
+    }, [tempSettings]);
+
+    const resetSettings = useCallback(() => {
+        setTempSettings(settings);
+    }, [settings]);
+
+    const handleMarketToggle = (market: string) => {
+        setTempSettings(prev => ({
+            ...prev,
+            selectedMarkets: prev.selectedMarkets.includes(market)
+                ? prev.selectedMarkets.filter(m => m !== market)
+                : [...prev.selectedMarkets, market]
+        }));
+    };
+
+    const executeRecoveryTrade = useCallback(async () => {
+        if (!api_base?.api || !settings.enableRecovery) return;
 
         try {
-            const signal = analyzerRef.current.generateRecoverySignal(martingaleAmount);
+            const martingaleAmount = currentStakeRef.current * settings.martingaleMultiplier;
+            const signal = analyzerRef.current.generateRecoverySignal(RECOVERY_MARKETS);
             setCurrentSignal(signal);
 
             const proposal = {
@@ -307,7 +322,6 @@ const AITrader = observer(() => {
                 duration_unit: 'm',
             };
 
-            // Send proposed contract to API
             api_base.api.send(proposal).then((response: any) => {
                 if (!response.error && response.proposal) {
                     const newTrade: TradeHistory = {
@@ -323,7 +337,6 @@ const AITrader = observer(() => {
 
                     setTradeHistory(prev => [...prev, newTrade]);
                     
-                    // Auto buy at market price
                     api_base.api.send({
                         buy: response.proposal.id,
                         price: response.proposal.ask_price,
@@ -333,18 +346,16 @@ const AITrader = observer(() => {
         } catch (error) {
             console.error('Recovery trade error:', error);
         }
-    }, [client.currency]);
+    }, [client.currency, settings.enableRecovery, settings.martingaleMultiplier]);
 
     const executeTrade = useCallback(async (signal: TradeSignal) => {
         if (!api_base?.api || !isRunning) return;
 
         try {
-            const stake = stats.currentStake;
-
             const proposal = {
                 contract_type: signal.type,
                 currency: client.currency,
-                amount: stake,
+                amount: currentStakeRef.current,
                 symbol: '1HZ100V',
                 duration: 1,
                 duration_unit: 'm',
@@ -356,7 +367,7 @@ const AITrader = observer(() => {
                         id: `trade-${Date.now()}`,
                         market: signal.market,
                         type: signal.type,
-                        amount: stake,
+                        amount: currentStakeRef.current,
                         result: 'pending',
                         profit: 0,
                         timestamp: Date.now(),
@@ -374,7 +385,7 @@ const AITrader = observer(() => {
         } catch (error) {
             console.error('Trade execution error:', error);
         }
-    }, [isRunning, stats.currentStake, client.currency]);
+    }, [isRunning, client.currency]);
 
     const handleTradeResult = useCallback((contractId: string, result: 'win' | 'loss', profit: number) => {
         setTradeHistory(prev =>
@@ -390,14 +401,12 @@ const AITrader = observer(() => {
             const newLosses = result === 'loss' ? prev.losses + 1 : prev.losses;
             const newTotal = newWins + newLosses;
             const newWinRate = newTotal > 0 ? (newWins / newTotal) * 100 : 0;
-            let newStake = prev.currentStake;
 
             if (result === 'loss') {
-                newStake = prev.currentStake * prev.martingaleMultiplier;
-                // Trigger recovery trade
-                executeRecoveryTrade(newStake);
+                currentStakeRef.current = currentStakeRef.current * settings.martingaleMultiplier;
+                executeRecoveryTrade();
             } else if (result === 'win' && prev.losses > 0) {
-                newStake = 1; // Reset to base stake after recovery win
+                currentStakeRef.current = settings.baseStake;
             }
 
             return {
@@ -406,21 +415,20 @@ const AITrader = observer(() => {
                 wins: newWins,
                 losses: newLosses,
                 winRate: newWinRate,
-                currentStake: newStake,
             };
         });
 
         setProfit(prev => prev + profit);
-    }, [executeRecoveryTrade]);
+    }, [settings.baseStake, settings.martingaleMultiplier, executeRecoveryTrade]);
 
     const startAITrading = useCallback(() => {
-        if (!api_base?.api) return;
+        if (!api_base?.api || settings.selectedMarkets.length === 0) return;
 
         setIsRunning(true);
         setTradeHistory([]);
         setProfit(0);
+        currentStakeRef.current = settings.baseStake;
 
-        // Subscribe to price updates
         const priceSubscription = {
             ticks: '1HZ100V',
         };
@@ -434,8 +442,8 @@ const AITrader = observer(() => {
                     const analysis = analyzerRef.current.analyzePrices(pricesRef.current);
                     setMarketAnalysis(analysis);
 
-                    const signal = analyzerRef.current.generateTradeSignal(analysis);
-                    if (signal && signal.confidence > 0.75) {
+                    const signal = analyzerRef.current.generateTradeSignal(analysis, settings.selectedMarkets);
+                    if (signal && signal.confidence > settings.confidenceThreshold) {
                         executeTrade(signal);
                     }
                 }
@@ -455,7 +463,7 @@ const AITrader = observer(() => {
         });
 
         api_base.api.send(priceSubscription);
-    }, [executeTrade, handleTradeResult]);
+    }, [executeTrade, handleTradeResult, settings]);
 
     const stopAITrading = useCallback(() => {
         setIsRunning(false);
@@ -467,100 +475,274 @@ const AITrader = observer(() => {
 
     return (
         <div className='ai-trader-container'>
-            <div className='ai-trader-header'>
-                <h1>{localize('AI Trader')}</h1>
-                <p>{localize('Automated trading with intelligent market analysis and recovery strategies')}</p>
-            </div>
-
-            <div className='ai-trader-content'>
-                <div className='ai-trader-controls'>
-                    <button
-                        className={`ai-btn ${isRunning ? 'stop' : 'start'}`}
-                        onClick={isRunning ? stopAITrading : startAITrading}
-                    >
-                        {isRunning ? localize('Stop AI Trader') : localize('Start AI Trader')}
-                    </button>
-                </div>
-
-                <div className='ai-trader-stats'>
-                    <div className='stat-card'>
-                        <span className='stat-label'>{localize('Balance')}</span>
-                        <span className='stat-value'>{balance.toFixed(2)}</span>
-                    </div>
-                    <div className='stat-card'>
-                        <span className='stat-label'>{localize('Total Profit')}</span>
-                        <span className={`stat-value ${profit >= 0 ? 'positive' : 'negative'}`}>
-                            {profit >= 0 ? '+' : ''} {profit.toFixed(2)}
-                        </span>
-                    </div>
-                    <div className='stat-card'>
-                        <span className='stat-label'>{localize('Total Trades')}</span>
-                        <span className='stat-value'>{stats.totalTrades}</span>
-                    </div>
-                    <div className='stat-card'>
-                        <span className='stat-label'>{localize('Win Rate')}</span>
-                        <span className='stat-value'>{stats.winRate.toFixed(2)}%</span>
-                    </div>
-                    <div className='stat-card'>
-                        <span className='stat-label'>{localize('Current Stake')}</span>
-                        <span className='stat-value'>{stats.currentStake.toFixed(2)}</span>
-                    </div>
-                    <div className='stat-card'>
-                        <span className='stat-label'>{localize('Martingale x')}</span>
-                        <span className='stat-value'>{stats.martingaleMultiplier}</span>
-                    </div>
-                </div>
-
-                {marketAnalysis && (
-                    <div className='market-analysis-panel'>
-                        <h3>{localize('Market Analysis')}</h3>
-                        <div className='analysis-grid'>
-                            <div className='analysis-item'>
-                                <span>{localize('Trend')}</span>
-                                <strong>{marketAnalysis.trend}</strong>
-                            </div>
-                            <div className='analysis-item'>
-                                <span>{localize('RSI')}</span>
-                                <strong>{marketAnalysis.rsi.toFixed(2)}</strong>
-                            </div>
-                            <div className='analysis-item'>
-                                <span>{localize('Volatility')}</span>
-                                <strong>{marketAnalysis.volatility.toFixed(4)}</strong>
-                            </div>
-                            <div className='analysis-item'>
-                                <span>{localize('Momentum')}</span>
-                                <strong>{marketAnalysis.momentum.toFixed(2)}%</strong>
-                            </div>
+            <div className='ai-trader-wrapper'>
+                {/* Header */}
+                <div className='ai-trader-header'>
+                    <div className='header-content'>
+                        <div className='header-info'>
+                            <h1>{localize('AI Trader Pro')}</h1>
+                            <p>{localize('Intelligent automated trading with advanced analysis')}</p>
+                        </div>
+                        <div className='header-actions'>
+                            <button
+                                className={`ai-btn ${isRunning ? 'btn-stop' : 'btn-start'}`}
+                                onClick={isRunning ? stopAITrading : startAITrading}
+                                disabled={!isRunning && settings.selectedMarkets.length === 0}
+                            >
+                                <span className='btn-icon'>{isRunning ? '⏸' : '▶'}</span>
+                                {isRunning ? localize('Stop Trading') : localize('Start Trading')}
+                            </button>
+                            <button
+                                className={`ai-btn settings-btn ${showSettings ? 'active' : ''}`}
+                                onClick={() => setShowSettings(!showSettings)}
+                                title='Settings'
+                            >
+                                ⚙️
+                            </button>
                         </div>
                     </div>
-                )}
+                    {isRunning && <div className='trading-indicator'>🔴 LIVE</div>}
+                </div>
 
-                <div className='trade-history-panel'>
-                    <h3>{localize('Trade History')}</h3>
-                    <div className='trade-history'>
-                        {tradeHistory.length === 0 ? (
-                            <p className='no-trades'>{localize('No trades yet')}</p>
-                        ) : (
-                            tradeHistory.slice().reverse().map(trade => (
-                                <div key={trade.id} className={`trade-item ${trade.result}`}>
-                                    <div className='trade-info'>
-                                        <span className='trade-market'>{trade.market}</span>
-                                        <span className='trade-type'>{trade.type}</span>
+                <div className='ai-trader-main'>
+                    {/* Settings Panel */}
+                    {showSettings && (
+                        <div className='settings-panel'>
+                            <div className='settings-header'>
+                                <h3>{localize('Settings')}</h3>
+                                <button className='close-btn' onClick={() => setShowSettings(false)}>✕</button>
+                            </div>
+
+                            <div className='settings-content'>
+                                {/* Trading Parameters */}
+                                <div className='settings-section'>
+                                    <h4>{localize('Trading Parameters')}</h4>
+                                    
+                                    <div className='setting-group'>
+                                        <label>{localize('Base Stake')}</label>
+                                        <div className='input-group'>
+                                            <input
+                                                type='number'
+                                                min='0.1'
+                                                step='0.1'
+                                                value={tempSettings.baseStake}
+                                                onChange={(e) => setTempSettings({
+                                                    ...tempSettings,
+                                                    baseStake: parseFloat(e.target.value) || 1
+                                                })}
+                                            />
+                                            <span className='currency'>{client.currency}</span>
+                                        </div>
                                     </div>
-                                    <div className='trade-details'>
-                                        <span className='trade-amount'>{localize('Amount')}: {trade.amount.toFixed(2)}</span>
-                                        <span className={`trade-profit ${trade.result}`}>
-                                            {trade.result === 'pending' ? localize('Pending') : (
-                                                trade.profit >= 0 ? `+${trade.profit.toFixed(2)}` : `${trade.profit.toFixed(2)}`
-                                            )}
-                                        </span>
-                                        {trade.isRecoveryTrade && (
-                                            <span className='recovery-badge'>{localize('Recovery')}</span>
-                                        )}
+
+                                    <div className='setting-group'>
+                                        <label>{localize('Martingale Multiplier')}</label>
+                                        <div className='input-group'>
+                                            <input
+                                                type='number'
+                                                min='1'
+                                                max='8'
+                                                step='0.5'
+                                                value={tempSettings.martingaleMultiplier}
+                                                onChange={(e) => setTempSettings({
+                                                    ...tempSettings,
+                                                    martingaleMultiplier: parseFloat(e.target.value) || 2
+                                                })}
+                                            />
+                                            <span className='label'>x</span>
+                                        </div>
+                                    </div>
+
+                                    <div className='setting-group'>
+                                        <label>{localize('Confidence Threshold')}</label>
+                                        <div className='slider-group'>
+                                            <input
+                                                type='range'
+                                                min='0.5'
+                                                max='0.95'
+                                                step='0.05'
+                                                value={tempSettings.confidenceThreshold}
+                                                onChange={(e) => setTempSettings({
+                                                    ...tempSettings,
+                                                    confidenceThreshold: parseFloat(e.target.value)
+                                                })}
+                                            />
+                                            <span className='value'>{(tempSettings.confidenceThreshold * 100).toFixed(0)}%</span>
+                                        </div>
+                                    </div>
+
+                                    <div className='setting-group checkbox'>
+                                        <label>
+                                            <input
+                                                type='checkbox'
+                                                checked={tempSettings.enableRecovery}
+                                                onChange={(e) => setTempSettings({
+                                                    ...tempSettings,
+                                                    enableRecovery: e.target.checked
+                                                })}
+                                            />
+                                            {localize('Enable Loss Recovery')}
+                                        </label>
                                     </div>
                                 </div>
-                            ))
+
+                                {/* Market Selection */}
+                                <div className='settings-section'>
+                                    <h4>{localize('Trading Markets')}</h4>
+                                    <div className='markets-grid'>
+                                        {DEFAULT_MARKETS.map(market => (
+                                            <label key={market} className='market-checkbox'>
+                                                <input
+                                                    type='checkbox'
+                                                    checked={tempSettings.selectedMarkets.includes(market)}
+                                                    onChange={() => handleMarketToggle(market)}
+                                                />
+                                                <span className='market-label'>
+                                                    {market === 'digit_over_0' && '📊 Over 0'}
+                                                    {market === 'digit_under_9' && '📊 Under 9'}
+                                                    {market === 'differ_digit' && '🔄 Differ'}
+                                                    {market === 'rise_fall' && '📈 Rise/Fall'}
+                                                </span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className='settings-actions'>
+                                    <button className='btn-apply' onClick={applySettings}>
+                                        {localize('Apply Settings')}
+                                    </button>
+                                    <button className='btn-reset' onClick={resetSettings}>
+                                        {localize('Reset')}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Main Content */}
+                    <div className={`content-area ${showSettings ? 'with-sidebar' : ''}`}>
+                        {/* Statistics Dashboard */}
+                        <div className='stats-grid'>
+                            <div className='stat-card primary'>
+                                <div className='stat-icon'>💵</div>
+                                <div className='stat-info'>
+                                    <span className='stat-label'>{localize('Balance')}</span>
+                                    <span className='stat-value'>{balance.toFixed(2)}</span>
+                                </div>
+                            </div>
+
+                            <div className={`stat-card ${profit >= 0 ? 'positive' : 'negative'}`}>
+                                <div className='stat-icon'>{profit >= 0 ? '📈' : '📉'}</div>
+                                <div className='stat-info'>
+                                    <span className='stat-label'>{localize('Total Profit')}</span>
+                                    <span className='stat-value'>{profit >= 0 ? '+' : ''}{profit.toFixed(2)}</span>
+                                </div>
+                            </div>
+
+                            <div className='stat-card info'>
+                                <div className='stat-icon'>📊</div>
+                                <div className='stat-info'>
+                                    <span className='stat-label'>{localize('Trades')}</span>
+                                    <span className='stat-value'>{stats.totalTrades}</span>
+                                </div>
+                            </div>
+
+                            <div className='stat-card success'>
+                                <div className='stat-icon'>✅</div>
+                                <div className='stat-info'>
+                                    <span className='stat-label'>{localize('Win Rate')}</span>
+                                    <span className='stat-value'>{stats.winRate.toFixed(1)}%</span>
+                                </div>
+                            </div>
+
+                            <div className='stat-card'>
+                                <div className='stat-icon'>💰</div>
+                                <div className='stat-info'>
+                                    <span className='stat-label'>{localize('Current Stake')}</span>
+                                    <span className='stat-value'>{currentStakeRef.current.toFixed(2)}</span>
+                                </div>
+                            </div>
+
+                            <div className='stat-card'>
+                                <div className='stat-icon'>🎯</div>
+                                <div className='stat-info'>
+                                    <span className='stat-label'>{localize('Multiplier')}</span>
+                                    <span className='stat-value'>x{settings.martingaleMultiplier}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Market Analysis */}
+                        {marketAnalysis && (
+                            <div className='analysis-section'>
+                                <h3>{localize('Market Analysis')}</h3>
+                                <div className='analysis-grid'>
+                                    <div className='analysis-card'>
+                                        <span className='card-label'>{localize('Trend')}</span>
+                                        <span className='card-value'>{marketAnalysis.trend === 'uptrend' ? '📈 Up' : '📉 Down'}</span>
+                                    </div>
+                                    <div className='analysis-card'>
+                                        <span className='card-label'>{localize('RSI')}</span>
+                                        <div className='rsi-bar'>
+                                            <div className='rsi-value' style={{ width: `${Math.min(marketAnalysis.rsi, 100)}%` }}></div>
+                                        </div>
+                                        <span className='card-value text-right'>{marketAnalysis.rsi.toFixed(1)}</span>
+                                    </div>
+                                    <div className='analysis-card'>
+                                        <span className='card-label'>{localize('Volatility')}</span>
+                                        <span className='card-value'>{marketAnalysis.volatility.toFixed(4)}</span>
+                                    </div>
+                                    <div className='analysis-card'>
+                                        <span className='card-label'>{localize('Momentum')}</span>
+                                        <span className={`card-value ${marketAnalysis.momentum >= 0 ? 'positive' : 'negative'}`}>
+                                            {marketAnalysis.momentum >= 0 ? '+' : ''}{marketAnalysis.momentum.toFixed(2)}%
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         )}
+
+                        {/* Trade History */}
+                        <div className='history-section'>
+                            <h3>{localize('Trade History')}</h3>
+                            <div className='trade-history-container'>
+                                {tradeHistory.length === 0 ? (
+                                    <div className='empty-state'>
+                                        <span className='empty-icon'>📭</span>
+                                        <p>{localize('No trades yet. Start trading to see history.')}</p>
+                                    </div>
+                                ) : (
+                                    <div className='trade-list'>
+                                        {tradeHistory.slice().reverse().map((trade, idx) => (
+                                            <div key={idx} className={`trade-row ${trade.result}`}>
+                                                <div className='trade-main'>
+                                                    <div className='trade-marker'>
+                                                        {trade.isRecoveryTrade && <span className='recovery-badge'>Recovery</span>}
+                                                        <span className='trade-type'>{trade.type}</span>
+                                                    </div>
+                                                    <div className='trade-details'>
+                                                        <span className='trade-market'>{trade.market}</span>
+                                                        <span className='trade-time'>
+                                                            {new Date(trade.timestamp).toLocaleTimeString()}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className='trade-outcome'>
+                                                    <span className='trade-amount'>{trade.amount.toFixed(2)}</span>
+                                                    <span className={`trade-result ${trade.result}`}>
+                                                        {trade.result === 'pending' && '⏳'}
+                                                        {trade.result === 'win' && `✅ +${trade.profit.toFixed(2)}`}
+                                                        {trade.result === 'loss' && `❌ ${trade.profit.toFixed(2)}`}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
