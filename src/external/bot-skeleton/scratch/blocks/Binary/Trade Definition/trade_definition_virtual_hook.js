@@ -11,7 +11,6 @@ import { localize } from '@deriv-com/translations';
 window.Blockly.Blocks.trade_definition_virtual_hook = {
     init() {
         this.jsonInit(this.definition());
-        this.setNextStatement(false);
     },
     definition() {
         return {
@@ -52,7 +51,6 @@ window.Blockly.Blocks.trade_definition_virtual_hook = {
             ),
         };
     },
-    restricted_parents: ['trade_definition'],
 };
 
 window.Blockly.JavaScript.javascriptGenerator.forBlock.trade_definition_virtual_hook = block => {
