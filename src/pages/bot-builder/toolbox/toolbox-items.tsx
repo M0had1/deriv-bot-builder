@@ -157,6 +157,14 @@ export const ToolboxItems = () =>
                         </Shadow>
                     </Value>
                 </Block>
+                <Block type='trade_definition_virtual_hook'>
+                    <Field name='ENABLED'>FALSE</Field>
+                    <Value name='MARTINGALE_MULTIPLIER'>
+                        <Shadow type='math_number'>
+                            <Field name='NUM'>2</Field>
+                        </Shadow>
+                    </Value>
+                </Block>
             </Category>
             <Category id='purchase_conditions' name={localize('Purchase conditions')}>
                 <Block type='before_purchase' />
