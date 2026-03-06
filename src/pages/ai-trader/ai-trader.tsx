@@ -473,147 +473,245 @@ const AITrader = observer(() => {
         pricesRef.current = [];
     }, []);
 
+    const getStatusColor = () => {
+        if (!isRunning) return 'idle';
+        if (stats.winRate > 60) return 'excellent';
+        if (stats.winRate > 50) return 'good';
+        if (stats.winRate > 40) return 'fair';
+        return 'poor';
+    };
+
+    const getPerformanceIndicator = () => {
+        const rate = stats.winRate;
+        if (rate > 70) return { label: 'EXCELLENT', icon: '⭐⭐⭐', color: '#10b981' };
+        if (rate > 60) return { label: 'VERY GOOD', icon: '⭐⭐', color: '#3b82f6' };
+        if (rate > 50) return { label: 'GOOD', icon: '⭐', color: '#f59e0b' };
+        return { label: 'NEUTRAL', icon: '○', color: '#6b7280' };
+    };
+
+    const performanceIndicator = getPerformanceIndicator();
+
     return (
         <div className='ai-trader-container'>
             <div className='ai-trader-wrapper'>
-                {/* Header */}
-                <div className='ai-trader-header'>
+                {/* Advanced Header */}
+                <div className={`ai-trader-header status-${getStatusColor()}`}>
+                    <div className='header-bg-animation'>
+                        <div className='gradient-orb orb-1'></div>
+                        <div className='gradient-orb orb-2'></div>
+                    </div>
+                    
                     <div className='header-content'>
                         <div className='header-info'>
-                            <h1>{localize('AI Trader Pro')}</h1>
-                            <p>{localize('Intelligent automated trading with advanced analysis')}</p>
+                            <div className='header-title-section'>
+                                <h1>{localize('AI Trader Pro')}</h1>
+                                <div className='ai-badge'>
+                                    <span className='ai-badge-icon'>🤖</span>
+                                    <span className='ai-badge-text'>POWERED BY AI</span>
+                                </div>
+                            </div>
+                            <p>{localize('Advanced automated trading system with neural market analysis')}</p>
                         </div>
+
+                        <div className='header-stats-mini'>
+                            <div className='mini-stat'>
+                                <span className='mini-stat-value'>{stats.totalTrades}</span>
+                                <span className='mini-stat-label'>Trades</span>
+                            </div>
+                            <div className='mini-stat'>
+                                <span className='mini-stat-value' style={{color: performanceIndicator.color}}>{stats.winRate.toFixed(1)}%</span>
+                                <span className='mini-stat-label'>Win Rate</span>
+                            </div>
+                            <div className='mini-stat'>
+                                <span className='mini-stat-value' style={{color: profit >= 0 ? '#10b981' : '#ef4444'}}>{profit >= 0 ? '+' : ''}{profit.toFixed(2)}</span>
+                                <span className='mini-stat-label'>Profit</span>
+                            </div>
+                        </div>
+
                         <div className='header-actions'>
                             <button
-                                className={`ai-btn ${isRunning ? 'btn-stop' : 'btn-start'}`}
+                                className={`ai-btn btn-primary ${isRunning ? 'btn-stop' : 'btn-start'}`}
                                 onClick={isRunning ? stopAITrading : startAITrading}
                                 disabled={!isRunning && settings.selectedMarkets.length === 0}
                             >
                                 <span className='btn-icon'>{isRunning ? '⏸' : '▶'}</span>
-                                {isRunning ? localize('Stop Trading') : localize('Start Trading')}
+                                <span className='btn-text'>{isRunning ? localize('Stop Trading') : localize('Start Trading')}</span>
                             </button>
                             <button
                                 className={`ai-btn settings-btn ${showSettings ? 'active' : ''}`}
                                 onClick={() => setShowSettings(!showSettings)}
                                 title='Settings'
                             >
-                                ⚙️
+                                <span className='settings-icon'>⚙️</span>
                             </button>
                         </div>
                     </div>
-                    {isRunning && <div className='trading-indicator'>🔴 LIVE</div>}
+
+                    {isRunning && (
+                        <div className='trading-indicator'>
+                            <div className='pulse-ring'></div>
+                            <span className='indicator-text'>🔴 LIVE TRADING</span>
+                        </div>
+                    )}
                 </div>
 
                 <div className='ai-trader-main'>
-                    {/* Settings Panel */}
+                    {/* Advanced Settings Panel */}
                     {showSettings && (
-                        <div className='settings-panel'>
-                            <div className='settings-header'>
-                                <h3>{localize('Settings')}</h3>
+                        <div className='settings-panel advanced-panel'>
+                            <div className='settings-header advanced-header'>
+                                <div className='header-title-info'>
+                                    <h3>⚙️ {localize('Advanced Settings')}</h3>
+                                    <p>{localize('Customize your trading parameters')}</p>
+                                </div>
                                 <button className='close-btn' onClick={() => setShowSettings(false)}>✕</button>
                             </div>
 
                             <div className='settings-content'>
-                                {/* Trading Parameters */}
-                                <div className='settings-section'>
-                                    <h4>{localize('Trading Parameters')}</h4>
-                                    
-                                    <div className='setting-group'>
-                                        <label>{localize('Base Stake')}</label>
-                                        <div className='input-group'>
-                                            <input
-                                                type='number'
-                                                min='0.1'
-                                                step='0.1'
-                                                value={tempSettings.baseStake}
-                                                onChange={(e) => setTempSettings({
-                                                    ...tempSettings,
-                                                    baseStake: parseFloat(e.target.value) || 1
-                                                })}
-                                            />
-                                            <span className='currency'>{client.currency}</span>
-                                        </div>
+                                {/* Trading Parameters Section */}
+                                <div className='settings-section advanced-section'>
+                                    <div className='section-header'>
+                                        <h4>📊 {localize('Trading Parameters')}</h4>
+                                        <div className='section-indicator'>Advanced</div>
                                     </div>
-
-                                    <div className='setting-group'>
-                                        <label>{localize('Martingale Multiplier')}</label>
-                                        <div className='input-group'>
-                                            <input
-                                                type='number'
-                                                min='1'
-                                                max='8'
-                                                step='0.5'
-                                                value={tempSettings.martingaleMultiplier}
-                                                onChange={(e) => setTempSettings({
-                                                    ...tempSettings,
-                                                    martingaleMultiplier: parseFloat(e.target.value) || 2
-                                                })}
-                                            />
-                                            <span className='label'>x</span>
+                                    <div className='section-content'>
+                                        <div className='setting-group'>
+                                            <div className='label-info'>
+                                                <label>{localize('Base Stake')}</label>
+                                                <span className='hint'>Min. 0.1 {client.currency}</span>
+                                            </div>
+                                            <div className='input-wrapper'>
+                                                <input
+                                                    type='number'
+                                                    min='0.1'
+                                                    step='0.1'
+                                                    value={tempSettings.baseStake}
+                                                    onChange={(e) => setTempSettings({
+                                                        ...tempSettings,
+                                                        baseStake: parseFloat(e.target.value) || 1
+                                                    })}
+                                                    className='advanced-input'
+                                                />
+                                                <span className='input-suffix'>{client.currency}</span>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div className='setting-group'>
-                                        <label>{localize('Confidence Threshold')}</label>
-                                        <div className='slider-group'>
-                                            <input
-                                                type='range'
-                                                min='0.5'
-                                                max='0.95'
-                                                step='0.05'
-                                                value={tempSettings.confidenceThreshold}
-                                                onChange={(e) => setTempSettings({
-                                                    ...tempSettings,
-                                                    confidenceThreshold: parseFloat(e.target.value)
-                                                })}
-                                            />
-                                            <span className='value'>{(tempSettings.confidenceThreshold * 100).toFixed(0)}%</span>
+                                        <div className='setting-group'>
+                                            <div className='label-info'>
+                                                <label>{localize('Martingale Multiplier')}</label>
+                                                <span className='hint'>Recovery multiplier: 1x - 8x</span>
+                                            </div>
+                                            <div className='input-wrapper'>
+                                                <input
+                                                    type='number'
+                                                    min='1'
+                                                    max='8'
+                                                    step='0.5'
+                                                    value={tempSettings.martingaleMultiplier}
+                                                    onChange={(e) => setTempSettings({
+                                                        ...tempSettings,
+                                                        martingaleMultiplier: parseFloat(e.target.value) || 2
+                                                    })}
+                                                    className='advanced-input'
+                                                />
+                                                <span className='input-suffix'>x</span>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div className='setting-group checkbox'>
-                                        <label>
-                                            <input
-                                                type='checkbox'
-                                                checked={tempSettings.enableRecovery}
-                                                onChange={(e) => setTempSettings({
-                                                    ...tempSettings,
-                                                    enableRecovery: e.target.checked
-                                                })}
-                                            />
-                                            {localize('Enable Loss Recovery')}
-                                        </label>
+                                        <div className='setting-group'>
+                                            <div className='label-info'>
+                                                <label>{localize('Confidence Threshold')}</label>
+                                                <span className='hint'>Signal confidence: {(tempSettings.confidenceThreshold * 100).toFixed(0)}%</span>
+                                            </div>
+                                            <div className='slider-container'>
+                                                <input
+                                                    type='range'
+                                                    min='0.5'
+                                                    max='0.95'
+                                                    step='0.05'
+                                                    value={tempSettings.confidenceThreshold}
+                                                    onChange={(e) => setTempSettings({
+                                                        ...tempSettings,
+                                                        confidenceThreshold: parseFloat(e.target.value)
+                                                    })}
+                                                    className='advanced-slider'
+                                                />
+                                                <div className='slider-labels'>
+                                                    <span>50%</span>
+                                                    <span>95%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className='setting-group checkbox-group'>
+                                            <label className='checkbox-label'>
+                                                <input
+                                                    type='checkbox'
+                                                    checked={tempSettings.enableRecovery}
+                                                    onChange={(e) => setTempSettings({
+                                                        ...tempSettings,
+                                                        enableRecovery: e.target.checked
+                                                    })}
+                                                    className='advanced-checkbox'
+                                                />
+                                                <span className='checkbox-text'>
+                                                    <span className='checkbox-title'>🔄 {localize('Enable Loss Recovery')}</span>
+                                                    <span className='checkbox-desc'>Automatically recover losses with martingale strategy</span>
+                                                </span>
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Market Selection */}
-                                <div className='settings-section'>
-                                    <h4>{localize('Trading Markets')}</h4>
-                                    <div className='markets-grid'>
-                                        {DEFAULT_MARKETS.map(market => (
-                                            <label key={market} className='market-checkbox'>
-                                                <input
-                                                    type='checkbox'
-                                                    checked={tempSettings.selectedMarkets.includes(market)}
-                                                    onChange={() => handleMarketToggle(market)}
-                                                />
-                                                <span className='market-label'>
-                                                    {market === 'digit_over_0' && '📊 Over 0'}
-                                                    {market === 'digit_under_9' && '📊 Under 9'}
-                                                    {market === 'differ_digit' && '🔄 Differ'}
-                                                    {market === 'rise_fall' && '📈 Rise/Fall'}
-                                                </span>
-                                            </label>
-                                        ))}
+                                {/* Market Selection Section */}
+                                <div className='settings-section advanced-section'>
+                                    <div className='section-header'>
+                                        <h4>🎯 {localize('Trading Markets')}</h4>
+                                        <div className='section-indicator'>{tempSettings.selectedMarkets.length} Selected</div>
+                                    </div>
+                                    <div className='section-content'>
+                                        <div className='markets-grid advanced-markets'>
+                                            {DEFAULT_MARKETS.map(market => (
+                                                <label key={market} className='market-card'>
+                                                    <input
+                                                        type='checkbox'
+                                                        checked={tempSettings.selectedMarkets.includes(market)}
+                                                        onChange={() => handleMarketToggle(market)}
+                                                        className='market-checkbox'
+                                                    />
+                                                    <div className='market-content'>
+                                                        <div className='market-icon'>
+                                                            {market === 'digit_over_0' && '📊'}
+                                                            {market === 'digit_under_9' && '📊'}
+                                                            {market === 'differ_digit' && '🔄'}
+                                                            {market === 'rise_fall' && '📈'}
+                                                        </div>
+                                                        <div className='market-info'>
+                                                            <span className='market-name'>
+                                                                {market === 'digit_over_0' && 'Over 0'}
+                                                                {market === 'digit_under_9' && 'Under 9'}
+                                                                {market === 'differ_digit' && 'Differ'}
+                                                                {market === 'rise_fall' && 'Rise/Fall'}
+                                                            </span>
+                                                            <span className='market-type'>
+                                                                {(market === 'digit_over_0' || market === 'digit_under_9' || market === 'differ_digit') ? 'Digits' : 'Volatility'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div className='settings-actions'>
-                                    <button className='btn-apply' onClick={applySettings}>
+                                <div className='settings-actions advanced-actions'>
+                                    <button className='btn-apply advanced-btn' onClick={applySettings}>
+                                        <span className='btn-icon'>✓</span>
                                         {localize('Apply Settings')}
                                     </button>
-                                    <button className='btn-reset' onClick={resetSettings}>
+                                    <button className='btn-reset advanced-btn-secondary' onClick={resetSettings}>
+                                        <span className='btn-icon'>↻</span>
                                         {localize('Reset')}
                                     </button>
                                 </div>
@@ -621,7 +719,7 @@ const AITrader = observer(() => {
                         </div>
                     )}
 
-                    {/* Main Content */}
+                    {/* Advanced Main Content */}
                     <div className={`content-area ${showSettings ? 'with-sidebar' : ''}`}>
                         {/* Statistics Dashboard */}
                         <div className='stats-grid'>
