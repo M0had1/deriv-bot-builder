@@ -4,33 +4,9 @@ import { contractStatus, info, log } from '../utils/broadcast';
 import { doUntilDone, getUUID, recoverFromError, tradeOptionToBuy } from '../utils/helpers';
 import { purchaseSuccessful } from './state/actions';
 import { BEFORE_PURCHASE } from './state/constants';
-import VirtualHookManager from '../../virtual-hook-manager';
 
 let delayIndex = 0;
 let purchase_reference;
-
-/**
- * Simulate a virtual trade result
- * @param {Object} tradeOptions - Trade options for the contract
- * @returns {Object} Simulated trade response
- */
-const simulateVirtualTradeResult = (tradeOptions) => {
-    // 50/50 chance of win/loss for virtual trades
-    const won = Math.random() > 0.5;
-    const buyPrice = parseFloat(tradeOptions.amount) || 1;
-    const sellPrice = won ? buyPrice * 1.1 : buyPrice * 0.9; // Simulate 10% gain or loss
-    
-    return {
-        buy: {
-            transaction_id: `virtual_${getUUID()}`,
-            contract_id: `virtual_${getUUID()}`,
-            buy_price: buyPrice,
-            sell_price: sellPrice,
-            longcode: `[Virtual] ${tradeOptions.contract_type || 'CALL'}`,
-            profit: sellPrice - buyPrice,
-        },
-    };
-};
 
 export default Engine =>
     class Purchase extends Engine {
@@ -66,15 +42,6 @@ export default Engine =>
                     contract_type,
                     buy_price: buy.buy_price,
                 });
-
-                // Log virtual hook info if active
-                if (VirtualHookManager.is_enabled) {
-                    const modeLabel = VirtualHookManager.isVirtualMode() ? '[VIRTUAL]' : '[REAL]';
-                    log(LogTypes.PURCHASE, { 
-                        virtual_hook_mode: modeLabel,
-                        trading_mode: VirtualHookManager.getTradingMode(),
-                    });
-                }
             };
 
             // Check if virtual hook is enabled and in virtual mode
@@ -86,19 +53,10 @@ export default Engine =>
                 const action = () => {
                     if (shouldUseVirtualTrade) {
                         // Simulate virtual trade instead of real API call
-                        return Promise.resolve(simulateVirtualTradeResult(this.tradeOptions));
-                    }
-                    return api_base.api.send({ buy: id, price: askPrice });
-                };
+            if (this.is_proposal_subscription_required) {
+                const { id, askPrice } = this.selectProposal(contract_type);
 
-                this.isSold = false;
-
-                contractStatus({
-                    id: 'contract.purchase_sent',
-                    data: askPrice,
-                });
-
-                if (!this.options.timeMachineEnabled) {
+                const action = () => api_base.api.send({ buy: id, price: askPrice })f (!this.options.timeMachineEnabled) {
                     return doUntilDone(action).then(onSuccess);
                 }
 
@@ -135,14 +93,8 @@ export default Engine =>
                 return api_base.api.send(trade_option);
             };
 
-            this.isSold = false;
 
-            contractStatus({
-                id: 'contract.purchase_sent',
-                data: this.tradeOptions.amount,
-            });
-
-            if (!this.options.timeMachineEnabled) {
+            const action = () => api_base.api.send(trade_option)f (!this.options.timeMachineEnabled) {
                 return doUntilDone(action).then(onSuccess);
             }
 

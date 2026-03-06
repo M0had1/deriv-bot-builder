@@ -16,7 +16,6 @@ import Purchase from './Purchase';
 import Sell from './Sell';
 import Ticks from './Ticks';
 import Total from './Total';
-import VirtualHookManager from '../../virtual-hook-manager';
 
 const watchBefore = store =>
     watchScope({
@@ -100,22 +99,6 @@ export default class TradeEngine extends Balance(Purchase(Sell(OpenContract(Prop
 
         this.tradeOptions = { ...validated_trade_options, symbol: this.options.symbol };
 
-        // Initialize Virtual Hook if configured in trade options
-        if (tradeOptions.virtual_hook) {
-            VirtualHookManager.initialize({
-                enabled: tradeOptions.virtual_hook.enabled || false,
-                martingale_multiplier: tradeOptions.virtual_hook.martingale_multiplier || 2,
-            });
-
-            // Subscribe to virtual hook mode changes for logging/monitoring
-            VirtualHookManager.onModeChange((event) => {
-                globalObserver.emit('bot.virtual_hook_mode_change', event);
-                console.log('[Virtual Hook] Mode changed:', event);
-            });
-        } else {
-            VirtualHookManager.initialize({ enabled: false });
-        }
-
         this.store.dispatch(start());
         this.checkLimits(validated_trade_options);
 
@@ -160,49 +143,7 @@ export default class TradeEngine extends Balance(Purchase(Sell(OpenContract(Prop
         this.observeOpenContract();
         this.observeBalance();
         this.observeProposals();
-
-        // Hook into contract completion for virtual hook result processing
-        if (VirtualHookManager.is_enabled) {
-            globalObserver.register('contract.sold', this.processVirtualHookResult);
-        }
     }
-
-    processVirtualHookResult = (contractData) => {
-        // Process trade result with virtual hook
-        if (!VirtualHookManager.is_enabled || !this.data.contract) {
-            return;
-        }
-
-        const contract = this.data.contract;
-        const sellPrice = parseFloat(contract.sell_price) || 0;
-        const buyPrice = parseFloat(contract.buy_price) || 0;
-        const profit = sellPrice - buyPrice;
-        const result = profit < 0 ? 'loss' : 'win';
-
-        // Update virtual hook with result 
-        const stakeAmount = parseFloat(this.tradeOptions.amount) || 1;
-        const update = VirtualHookManager.handleTradeResult(result, stakeAmount);
-
-        // If mode changed to real with martingale, update the stake
-        if (update.mode_changed && update.action === 'switched_to_real_with_martingale') {
-            const newStake = stakeAmount * VirtualHookManager.martingale_multiplier;
-            this.tradeOptions.amount = newStake;
-
-            console.log('[Virtual Hook] Switched to REAL mode. Applying martingale: new stake =', newStake);
-            globalObserver.emit('bot.virtual_hook_martingale_applied', {
-                old_stake: stakeAmount,
-                new_stake: newStake,
-                multiplier: VirtualHookManager.martingale_multiplier,
-            });
-        }
-
-        globalObserver.emit('bot.virtual_hook_result_processed', {
-            trade_result: result,
-            stake: stakeAmount,
-            profit: profit,
-            virtual_hook_state: VirtualHookManager.getState(),
-        });
-    };
 
     watch(watchName) {
         if (watchName === 'before') {
