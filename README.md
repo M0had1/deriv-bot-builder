@@ -1,4 +1,4 @@
-# 🤖 Deriv Trading Bot Builder
+# 🤖 Deriv Trading Bot Builder - TICKSHARK
 
 Create automated trading strategies without coding! Build powerful Deriv trading bots with our visual block-based interface.
 
@@ -127,8 +127,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 For support and questions:
-- 📧 Email: support@deriv.com
-- 🌐 Website: [deriv.com](https://deriv.com)
+- 📧 Email: support@tickshark.com
+- 🌐 Website: [tickshark.com](https://tickshark.com)
 - 💬 Live Chat: Available on the website
 
 ---

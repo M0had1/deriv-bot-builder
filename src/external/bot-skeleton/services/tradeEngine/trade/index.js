@@ -98,7 +98,12 @@ export default class TradeEngine extends Balance(Purchase(Sell(OpenContract(Prop
 
         const validated_trade_options = this.validateTradeOptions(tradeOptions);
 
-        this.tradeOptions = { ...validated_trade_options, symbol: this.options.symbol };
+        // Explicitly preserve virtual_hook configuration in trade parameters
+        this.tradeOptions = {
+            ...validated_trade_options,
+            symbol: this.options.symbol,
+            virtual_hook: tradeOptions.virtual_hook || undefined,
+        };
 
         // Initialize Virtual Hook if configured in trade options
         if (tradeOptions.virtual_hook) {
