@@ -662,6 +662,27 @@ window.Blockly.JavaScript.javascriptGenerator.forBlock.trade_definition_tradeopt
         second_barrier_offset_value = getBarrierValue(barrier_offset_type, value);
     }
 
+    // Extract Virtual Hook configuration from parent trade_definition block
+    let virtual_hook_config = 'undefined';
+    const trade_definition_block = block.workspace.getBlocksByType('trade_definition')[0];
+    if (trade_definition_block) {
+        const virtual_hook_block = trade_definition_block.getChildByType('trade_definition_virtual_hook');
+        if (virtual_hook_block) {
+            const enabled = virtual_hook_block.getFieldValue('ENABLED') === 'TRUE';
+            const martingale_multiplier =
+                window.Blockly.JavaScript.javascriptGenerator.valueToCode(
+                    virtual_hook_block,
+                    'MARTINGALE_MULTIPLIER',
+                    window.Blockly.JavaScript.javascriptGenerator.ORDER_ATOMIC
+                ) || '2';
+            
+            virtual_hook_config = `{
+                enabled: ${enabled},
+                martingale_multiplier: ${martingale_multiplier},
+            }`;
+        }
+    }
+
     const code = `
         Bot.start({
             limitations        : BinaryBotPrivateLimitations,
@@ -673,6 +694,7 @@ window.Blockly.JavaScript.javascriptGenerator.forBlock.trade_definition_tradeopt
             barrierOffset      : ${barrier_offset_value || 'undefined'},
             secondBarrierOffset: ${second_barrier_offset_value || 'undefined'},
             basis              : '${block.type === 'trade_definition_tradeoptions' ? 'stake' : 'payout'}',
+            virtual_hook       : ${virtual_hook_config},
         });
         BinaryBotPrivateHasCalledTradeOptions = true;
     `;

@@ -368,6 +368,7 @@ class DBot {
         this.interpreter = null;
         this.interpreter = Interpreter();
         await this.interpreter.bot.tradeEngine.watchTicks(this.symbol);
+        this.interpreter.bot.tradeEngine.resetVirtualHook();
         forgetAccumulatorsProposalRequest(this);
     }
 

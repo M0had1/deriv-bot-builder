@@ -1,5 +1,6 @@
 import { observer as globalObserver } from '../../../utils/observer';
 import { createDetails } from '../utils/helpers';
+import VirtualHookManager from '../../virtual-hook-manager';
 
 const getBotInterface = tradeEngine => {
     const getDetail = i => createDetails(tradeEngine.data.contract)[i];
@@ -18,6 +19,10 @@ const getBotInterface = tradeEngine => {
         isResult: result => getDetail(10) === result,
         isTradeAgain: result => globalObserver.emit('bot.trade_again', result),
         readDetails: i => getDetail(i - 1),
+        // Virtual Hook methods
+        virtualHookMode: () => VirtualHookManager.getTradingMode(),
+        isVirtualHookEnabled: () => VirtualHookManager.is_enabled,
+        getVirtualHookState: () => VirtualHookManager.getState(),
     };
 };
 
