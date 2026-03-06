@@ -23,6 +23,7 @@ import RunStrategy from '../dashboard/run-strategy';
 
 const Chart = lazy(() => import('../chart'));
 const Tutorial = lazy(() => import('../tutorials'));
+const AITrader = lazy(() => import('../ai-trader'));
 
 const DashboardIcon = () => (
     <svg width="20" height="20" fill="var(--text-general)" viewBox="0 0 24 24">
@@ -74,6 +75,17 @@ const FreeBotsIcon = () => (
 const BotIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" fill="var(--text-general)" />
+    </svg>
+);
+
+const AITraderIcon = () => (
+    <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" stroke="var(--text-general)" strokeWidth="2"/>
+        <path d="M8 12h8M12 8v8" stroke="var(--text-general)" strokeWidth="2" strokeLinecap="round"/>
+        <circle cx="8" cy="8" r="1" fill="var(--text-general)"/>
+        <circle cx="16" cy="8" r="1" fill="var(--text-general)"/>
+        <circle cx="8" cy="16" r="1" fill="var(--text-general)"/>
+        <circle cx="16" cy="16" r="1" fill="var(--text-general)"/>
     </svg>
 );
 
@@ -193,7 +205,7 @@ const AppWrapper = observer(() => {
 
 
 
-    const showRunPanel = [DBOT_TABS.BOT_BUILDER, DBOT_TABS.CHART, DBOT_TABS.ANALYSIS_TOOL, DBOT_TABS.SIGNALS].includes(active_tab);
+    const showRunPanel = [DBOT_TABS.BOT_BUILDER, DBOT_TABS.CHART, DBOT_TABS.ANALYSIS_TOOL, DBOT_TABS.SIGNALS, DBOT_TABS.AI_TRADER].includes(active_tab);
 
     return (
         <React.Fragment>
@@ -254,6 +266,11 @@ const AppWrapper = observer(() => {
                                     allow="fullscreen"
                                 />
                             </div>
+                        </div>
+                        <div label={<><AITraderIcon /><Localize i18n_default_text='AI Trader' /></>} id='id-ai-trader'>
+                            <Suspense fallback={<ChunkLoader message={localize('Loading AI Trader...')} />}>
+                                <AITrader />
+                            </Suspense>
                         </div>
                         <div label={<><TradingHubIcon /><Localize i18n_default_text='Tradingview' /></>} id='id-tradingview'>
                             <div className="tradingview-fullscreen">
