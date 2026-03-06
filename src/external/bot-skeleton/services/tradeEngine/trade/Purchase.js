@@ -44,19 +44,19 @@ export default Engine =>
                 });
             };
 
-            // Check if virtual hook is enabled and in virtual mode
-            const shouldUseVirtualTrade = VirtualHookManager.is_enabled && VirtualHookManager.isVirtualMode();
-
             if (this.is_proposal_subscription_required) {
                 const { id, askPrice } = this.selectProposal(contract_type);
 
-                const action = () => {
-                    if (shouldUseVirtualTrade) {
-                        // Simulate virtual trade instead of real API call
-            if (this.is_proposal_subscription_required) {
-                const { id, askPrice } = this.selectProposal(contract_type);
+                const action = () => api_base.api.send({ buy: id, price: askPrice });
 
-                const action = () => api_base.api.send({ buy: id, price: askPrice })f (!this.options.timeMachineEnabled) {
+                this.isSold = false;
+
+                contractStatus({
+                    id: 'contract.purchase_sent',
+                    data: askPrice,
+                });
+
+                if (!this.options.timeMachineEnabled) {
                     return doUntilDone(action).then(onSuccess);
                 }
 
@@ -84,17 +84,17 @@ export default Engine =>
             }
 
             const trade_option = tradeOptionToBuy(contract_type, this.tradeOptions);
-            
-            const action = () => {
-                if (shouldUseVirtualTrade) {
-                    // Simulate virtual trade instead of real API call
-                    return Promise.resolve(simulateVirtualTradeResult(this.tradeOptions));
-                }
-                return api_base.api.send(trade_option);
-            };
 
+            const action = () => api_base.api.send(trade_option);
 
-            const action = () => api_base.api.send(trade_option)f (!this.options.timeMachineEnabled) {
+            this.isSold = false;
+
+            contractStatus({
+                id: 'contract.purchase_sent',
+                data: this.tradeOptions.amount,
+            });
+
+            if (!this.options.timeMachineEnabled) {
                 return doUntilDone(action).then(onSuccess);
             }
 
@@ -116,7 +116,9 @@ export default Engine =>
                 delayIndex++
             ).then(onSuccess);
         }
+
         getPurchaseReference = () => purchase_reference;
+
         regeneratePurchaseReference = () => {
             purchase_reference = getUUID();
         };
