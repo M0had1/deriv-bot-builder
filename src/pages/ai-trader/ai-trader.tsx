@@ -305,6 +305,30 @@ const AITrader = observer(() => {
         }));
     };
 
+    const getContractType = (tradeType: string): string => {
+        const typeMap: { [key: string]: string } = {
+            'CALL': 'CALLPUT',
+            'PUT': 'CALLPUT',
+            'RISE': 'CALLPUT',
+            'FALL': 'CALLPUT',
+            'DIGIT': 'DIGITMATCH',
+            'EVEN': 'EVENODD',
+            'ODD': 'EVENODD',
+        };
+        return typeMap[tradeType] || 'CALLPUT';
+    };
+
+    const getBarrier = (signal: TradeSignal, symbol: string): string | undefined => {
+        const barrierMap: { [key: string]: string } = {
+            'digit_over_0': '0',
+            'digit_over_4': '4',
+            'digit_under_9': '9',
+            'digit_under_5': '5',
+            'differ_digit': '',
+        };
+        return barrierMap[signal.market];
+    };
+
     const executeRecoveryTrade = useCallback(async () => {
         if (!api_base?.api || !settings.enableRecovery) return;
 
@@ -313,81 +337,160 @@ const AITrader = observer(() => {
             const signal = analyzerRef.current.generateRecoverySignal(RECOVERY_MARKETS);
             setCurrentSignal(signal);
 
-            const proposal = {
-                contract_type: signal.type,
+            const symbol = '1HZ100V';
+            const contractType = getContractType(signal.type);
+            const barrier = getBarrier(signal, symbol);
+
+            const proposal: any = {
+                proposal: 1,
+                contract_type: contractType,
                 currency: client.currency,
                 amount: martingaleAmount,
-                symbol: '1HZ100V',
+                symbol: symbol,
                 duration: 1,
                 duration_unit: 'm',
             };
 
-            api_base.api.send(proposal).then((response: any) => {
-                if (!response.error && response.proposal) {
-                    const newTrade: TradeHistory = {
-                        id: `trade-${Date.now()}`,
-                        market: signal.market,
-                        type: signal.type,
-                        amount: martingaleAmount,
-                        result: 'pending',
-                        profit: 0,
-                        timestamp: Date.now(),
-                        isRecoveryTrade: true,
-                    };
+            if (barrier !== undefined && barrier !== '') {
+                proposal.barrier = barrier;
+            }
 
-                    setTradeHistory(prev => [...prev, newTrade]);
-                    
-                    api_base.api.send({
-                        buy: response.proposal.id,
-                        price: response.proposal.ask_price,
-                    });
+            console.log('🔄 Recovery trade - Sending proposal:', proposal);
+
+            api_base.api.send(proposal).then((response: any) => {
+                if (response.error) {
+                    console.error('❌ Recovery proposal error:', response.error);
+                    return;
                 }
+
+                if (!response.proposal) {
+                    console.error('❌ No recovery proposal in response:', response);
+                    return;
+                }
+
+                console.log('✅ Recovery proposal received:', response.proposal);
+
+                const tradeId = `trade-${Date.now()}-${Math.random()}`;
+                const newTrade: TradeHistory = {
+                    id: tradeId,
+                    market: signal.market,
+                    type: signal.type,
+                    amount: martingaleAmount,
+                    result: 'pending',
+                    profit: 0,
+                    timestamp: Date.now(),
+                    isRecoveryTrade: true,
+                };
+
+                setTradeHistory(prev => [...prev, newTrade]);
+                
+                // Send buy request to purchase the contract
+                const buyRequest = {
+                    buy: response.proposal.id,
+                    price: response.proposal.ask_price,
+                };
+
+                console.log('💳 Recovery - Sending buy request:', buyRequest);
+
+                api_base.api.send(buyRequest).then((buyResponse: any) => {
+                    if (buyResponse.error) {
+                        console.error('❌ Recovery buy error:', buyResponse.error);
+                        return;
+                    }
+
+                    if (!buyResponse.buy) {
+                        console.error('❌ No recovery buy confirmation:', buyResponse);
+                        return;
+                    }
+
+                    console.log('✅ Recovery contract purchased:', buyResponse.buy.contract_id);
+                });
             });
         } catch (error) {
             console.error('Recovery trade error:', error);
         }
-    }, [client.currency, settings.enableRecovery, settings.martingaleMultiplier]);
+    }, [client.currency, settings.enableRecovery, settings.martingaleMultiplier, getContractType, getBarrier]);
 
     const executeTrade = useCallback(async (signal: TradeSignal) => {
         if (!api_base?.api || !isRunning) return;
 
         try {
-            const proposal = {
-                contract_type: signal.type,
+            const symbol = '1HZ100V';
+            const contractType = getContractType(signal.type);
+            const barrier = getBarrier(signal, symbol);
+
+            const proposal: any = {
+                proposal: 1,
+                contract_type: contractType,
                 currency: client.currency,
                 amount: currentStakeRef.current,
-                symbol: '1HZ100V',
+                symbol: symbol,
                 duration: 1,
                 duration_unit: 'm',
             };
 
+            if (barrier !== undefined && barrier !== '') {
+                proposal.barrier = barrier;
+            }
+
+            console.log('📊 Sending proposal:', proposal);
+
             api_base.api.send(proposal).then((response: any) => {
-                if (!response.error && response.proposal) {
-                    const newTrade: TradeHistory = {
-                        id: `trade-${Date.now()}`,
-                        market: signal.market,
-                        type: signal.type,
-                        amount: currentStakeRef.current,
-                        result: 'pending',
-                        profit: 0,
-                        timestamp: Date.now(),
-                        isRecoveryTrade: false,
-                    };
-
-                    setTradeHistory(prev => [...prev, newTrade]);
-
-                    api_base.api.send({
-                        buy: response.proposal.id,
-                        price: response.proposal.ask_price,
-                    });
+                if (response.error) {
+                    console.error('❌ Proposal error:', response.error);
+                    return;
                 }
+
+                if (!response.proposal) {
+                    console.error('❌ No proposal in response:', response);
+                    return;
+                }
+
+                console.log('✅ Proposal received:', response.proposal);
+
+                const tradeId = `trade-${Date.now()}-${Math.random()}`;
+                const newTrade: TradeHistory = {
+                    id: tradeId,
+                    market: signal.market,
+                    type: signal.type,
+                    amount: currentStakeRef.current,
+                    result: 'pending',
+                    profit: 0,
+                    timestamp: Date.now(),
+                    isRecoveryTrade: false,
+                };
+
+                setTradeHistory(prev => [...prev, newTrade]);
+
+                // Send buy request to purchase the contract
+                const buyRequest = {
+                    buy: response.proposal.id,
+                    price: response.proposal.ask_price,
+                };
+
+                console.log('💳 Sending buy request:', buyRequest);
+
+                api_base.api.send(buyRequest).then((buyResponse: any) => {
+                    if (buyResponse.error) {
+                        console.error('❌ Buy error:', buyResponse.error);
+                        return;
+                    }
+
+                    if (!buyResponse.buy) {
+                        console.error('❌ No buy confirmation:', buyResponse);
+                        return;
+                    }
+
+                    console.log('✅ Contract purchased:', buyResponse.buy.contract_id);
+                });
             });
         } catch (error) {
             console.error('Trade execution error:', error);
         }
-    }, [isRunning, client.currency]);
+    }, [isRunning, client.currency, getContractType, getBarrier]);
 
     const handleTradeResult = useCallback((contractId: string, result: 'win' | 'loss', profit: number) => {
+        // Update trade history with result
         setTradeHistory(prev =>
             prev.map(trade =>
                 trade.id === contractId
@@ -396,30 +499,15 @@ const AITrader = observer(() => {
             )
         );
 
-        setStats(prev => {
-            const newWins = result === 'win' ? prev.wins + 1 : prev.wins;
-            const newLosses = result === 'loss' ? prev.losses + 1 : prev.losses;
-            const newTotal = newWins + newLosses;
-            const newWinRate = newTotal > 0 ? (newWins / newTotal) * 100 : 0;
-
-            if (result === 'loss') {
-                currentStakeRef.current = currentStakeRef.current * settings.martingaleMultiplier;
-                executeRecoveryTrade();
-            } else if (result === 'win' && prev.losses > 0) {
-                currentStakeRef.current = settings.baseStake;
-            }
-
-            return {
-                ...prev,
-                totalTrades: newTotal,
-                wins: newWins,
-                losses: newLosses,
-                winRate: newWinRate,
-            };
-        });
-
-        setProfit(prev => prev + profit);
-    }, [settings.baseStake, settings.martingaleMultiplier, executeRecoveryTrade]);
+        // Implement martingale recovery strategy on loss
+        if (result === 'loss') {
+            currentStakeRef.current = currentStakeRef.current * settings.martingaleMultiplier;
+            executeRecoveryTrade();
+        } else if (result === 'win') {
+            // Reset stake to base on win
+            currentStakeRef.current = settings.baseStake;
+        }
+    }, [settings.martingaleMultiplier, settings.baseStake, executeRecoveryTrade]);
 
     const startAITrading = useCallback(() => {
         if (!api_base?.api || settings.selectedMarkets.length === 0) return;
@@ -429,41 +517,65 @@ const AITrader = observer(() => {
         setProfit(0);
         currentStakeRef.current = settings.baseStake;
 
-        const priceSubscription = {
-            ticks: '1HZ100V',
-        };
+        // Subscribe to price ticks
+        api_base.api.send({ ticks: '1HZ100V' });
 
+        // Subscribe to contract updates and price ticks
         subscriptionRef.current = api_base.api.onMessage().subscribe(({ data }: any) => {
-            if (data.msg_type === 'tick' && data.tick) {
-                const newPrice = data.tick.bid || 0;
-                pricesRef.current = [...pricesRef.current, newPrice].slice(-100);
+            try {
+                // Handle price ticks for analysis
+                if (data.msg_type === 'tick' && data.tick) {
+                    const newPrice = data.tick.bid || 0;
+                    pricesRef.current = [...pricesRef.current, newPrice].slice(-100);
 
-                if (pricesRef.current.length >= 10) {
-                    const analysis = analyzerRef.current.analyzePrices(pricesRef.current);
-                    setMarketAnalysis(analysis);
+                    if (pricesRef.current.length >= 10) {
+                        const analysis = analyzerRef.current.analyzePrices(pricesRef.current);
+                        setMarketAnalysis(analysis);
 
-                    const signal = analyzerRef.current.generateTradeSignal(analysis, settings.selectedMarkets);
-                    if (signal && signal.confidence > settings.confidenceThreshold) {
-                        executeTrade(signal);
+                        const signal = analyzerRef.current.generateTradeSignal(analysis, settings.selectedMarkets);
+                        if (signal && signal.confidence > settings.confidenceThreshold) {
+                            executeTrade(signal);
+                        }
                     }
                 }
-            }
 
-            if (data.msg_type === 'proposal_open_contract') {
-                const contract = data.proposal_open_contract;
-                if (contract.status !== 'open') {
-                    const result = contract.profit > 0 ? 'win' : 'loss';
-                    handleTradeResult(
-                        `trade-${contract.contract_id}`,
-                        result as 'win' | 'loss',
-                        contract.profit || 0
-                    );
+                // Handle contract purchases
+                if (data.msg_type === 'buy') {
+                    console.log('Contract purchased successfully:', data.buy);
                 }
+
+                // Handle contract status updates
+                if (data.msg_type === 'proposal_open_contract') {
+                    const contract = data.proposal_open_contract;
+                    console.log('Contract update:', contract.status, 'Profit:', contract.profit);
+                    
+                    // Only process closed contracts
+                    if (contract.status === 'sold' || contract.is_expired) {
+                        const result = contract.profit >= 0 ? 'win' : 'loss';
+                        const profit = contract.profit || 0;
+                        
+                        handleTradeResult(
+                            `trade-${contract.contract_id}`,
+                            result,
+                            profit
+                        );
+                        
+                        // Update stats
+                        setStats(prev => ({
+                            ...prev,
+                            totalTrades: prev.totalTrades + 1,
+                            wins: result === 'win' ? prev.wins + 1 : prev.wins,
+                            losses: result === 'loss' ? prev.losses + 1 : prev.losses,
+                        }));
+
+                        setProfit(prev => prev + profit);
+                    }
+                }
+            } catch (error) {
+                console.error('Error processing API message:', error);
             }
         });
-
-        api_base.api.send(priceSubscription);
-    }, [executeTrade, handleTradeResult, settings]);
+    }, [executeTrade, handleTradeResult, settings, settings.confidenceThreshold, settings.selectedMarkets]);
 
     const stopAITrading = useCallback(() => {
         setIsRunning(false);
