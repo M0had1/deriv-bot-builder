@@ -1,48 +1,135 @@
+// ==================== COLOR PALETTE ====================
+$primary-dark: #0a0e27;
+$primary-darker: #0f1424;
+$primary-light: #1e2749;
+$primary-lighter: #2a3555;
+$accent-primary: #00d4ff;
+$accent-secondary: #00a8cc;
+$accent-tertiary: #0078d4;
+$success-color: #10b981;
+$warning-color: #f59e0b;
+$danger-color: #ef4444;
+$text-primary: #f0f4f8;
+$text-secondary: #b0bcc4;
+$text-muted: #7a8a96;
+$border-color: rgba(255, 255, 255, 0.08);
+$glass-bg: rgba(15, 20, 40, 0.4);
+
 .ai-trader-container {
     display: flex;
     height: 100%;
     width: 100%;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: #f1f5f9;
+    background: linear-gradient(135deg, $primary-dark 0%, $primary-darker 50%, #050810 100%);
+    font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: $text-primary;
     overflow: hidden;
+    letter-spacing: 0.3px;
 
     .ai-trader-wrapper {
         display: flex;
         flex-direction: column;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        backdrop-filter: blur(10px);
+        background: radial-gradient(ellipse at bottom right, rgba(0, 212, 255, 0.05), transparent);
     }
 
-    /* ==================== HEADER ==================== */
+    // ==================== PROFESSIONAL HEADER ====================
     .ai-trader-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 20px 24px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         position: relative;
+        padding: 24px 32px;
+        background: linear-gradient(135deg, rgba(30, 39, 73, 0.6) 0%, rgba(15, 20, 40, 0.4) 100%);
+        border-bottom: 1px solid $border-color;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse 400px 300px at 50% 0%, rgba(0, 212, 255, 0.05), transparent);
+            pointer-events: none;
+            z-index: 0;
+        }
 
         .header-content {
+            position: relative;
+            z-index: 1;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 100%;
+            gap: 32px;
 
             .header-info {
-                h1 {
-                    margin: 0 0 4px 0;
+                flex: 1;
+                display: flex;
+                align-items: center;
+                gap: 16px;
+
+                .header-logo-section {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 56px;
+                    height: 56px;
+                    background: linear-gradient(135deg, $accent-primary 0%, $accent-secondary 100%);
+                    border-radius: 12px;
+                    box-shadow: 0 8px 24px rgba(0, 212, 255, 0.2);
                     font-size: 28px;
-                    font-weight: 700;
-                    letter-spacing: -0.5px;
+                    color: white;
                 }
 
-                p {
-                    margin: 0;
-                    font-size: 13px;
-                    opacity: 0.9;
-                    font-weight: 400;
+                .title-section {
+                    h1 {
+                        margin: 0;
+                        font-size: 28px;
+                        font-weight: 900;
+                        background: linear-gradient(135deg, $text-primary 0%, $accent-primary 100%);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        background-clip: text;
+                        letter-spacing: -1px;
+                    }
+
+                    p {
+                        margin: 4px 0 0 0;
+                        font-size: 12px;
+                        color: $text-muted;
+                        font-weight: 500;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+                }
+            }
+
+            .header-stats {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+                padding-right: 24px;
+                border-right: 1px solid $border-color;
+
+                .stat {
+                    text-align: center;
+
+                    .stat-value {
+                        display: block;
+                        font-size: 20px;
+                        font-weight: 800;
+                        color: $accent-primary;
+                        margin-bottom: 2px;
+                    }
+
+                    .stat-label {
+                        display: block;
+                        font-size: 11px;
+                        color: $text-muted;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                        font-weight: 700;
+                    }
                 }
             }
 
@@ -51,314 +138,632 @@
                 gap: 12px;
                 align-items: center;
 
-                .ai-btn {
+                .control-btn {
                     display: flex;
                     align-items: center;
+                    justify-content: center;
                     gap: 8px;
-                    padding: 10px 16px;
+                    padding: 11px 20px;
                     border: none;
                     border-radius: 8px;
-                    font-size: 14px;
-                    font-weight: 600;
+                    font-size: 12px;
+                    font-weight: 700;
                     cursor: pointer;
-                    transition: all 0.3s ease;
+                    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
                     text-transform: uppercase;
                     letter-spacing: 0.5px;
+                    border: 1px solid transparent;
+                    position: relative;
+                    overflow: hidden;
+
+                    &::before {
+                        content: '';
+                        position: absolute;
+                        inset: 0;
+                        opacity: 0;
+                        transition: opacity 0.3s;
+                        background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1), transparent);
+                        pointer-events: none;
+                    }
+
+                    &:hover::before {
+                        opacity: 1;
+                    }
 
                     &.btn-start {
-                        background: #10b981;
+                        background: linear-gradient(135deg, $success-color 0%, #059669 100%);
                         color: white;
-                        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+                        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
 
                         &:hover {
-                            background: #059669;
-                            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+                            transform: translateY(-2px);
+                            box-shadow: 0 12px 32px rgba(16, 185, 129, 0.4);
                         }
 
                         &:active {
-                            transform: scale(0.95);
+                            transform: translateY(0);
                         }
 
                         &:disabled {
-                            background: #d1d5db;
-                            cursor: not-allowed;
+                            background: $text-muted;
                             box-shadow: none;
+                            cursor: not-allowed;
+                            opacity: 0.5;
                         }
                     }
 
                     &.btn-stop {
-                        background: #ef4444;
+                        background: linear-gradient(135deg, $danger-color 0%, #dc2626 100%);
                         color: white;
-                        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+                        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
 
                         &:hover {
-                            background: #dc2626;
-                            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+                            transform: translateY(-2px);
+                            box-shadow: 0 12px 32px rgba(239, 68, 68, 0.4);
                         }
 
                         &:active {
-                            transform: scale(0.95);
+                            transform: translateY(0);
                         }
                     }
+                }
 
-                    &.settings-btn {
-                        background: rgba(255, 255, 255, 0.2);
-                        color: white;
-                        font-size: 16px;
-                        padding: 10px 12px;
-                        min-width: 40px;
-                        justify-content: center;
+                .settings-btn {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 44px;
+                    height: 44px;
+                    border: 1px solid $border-color;
+                    border-radius: 8px;
+                    background: $glass-bg;
+                    color: $accent-primary;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    font-size: 18px;
+                    backdrop-filter: blur(10px);
 
-                        &:hover {
-                            background: rgba(255, 255, 255, 0.3);
-                        }
-
-                        &.active {
-                            background: rgba(255, 255, 255, 0.3);
-                        }
+                    &:hover {
+                        border-color: $accent-primary;
+                        background: rgba(0, 212, 255, 0.1);
+                        transform: rotate(20deg);
                     }
 
-                    .btn-icon {
-                        font-size: 16px;
+                    &.active {
+                        background: rgba(0, 212, 255, 0.15);
+                        border-color: $accent-primary;
+                        transform: rotate(-20deg);
                     }
                 }
             }
         }
 
-        .trading-indicator {
+        .live-indicator {
             position: absolute;
-            top: 12px;
-            right: 24px;
+            top: 24px;
+            right: 32px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             font-size: 12px;
             font-weight: 700;
-            color: white;
-            animation: pulse 2s infinite;
-        }
+            color: $danger-color;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 2;
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
+            .pulse-dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background: $danger-color;
+                box-shadow: 0 0 12px $danger-color;
+                animation: pulse-beat 1.5s ease-in-out infinite;
+            }
+
+            @keyframes pulse-beat {
+                0%, 100% { transform: scale(1); opacity: 1; }
+                50% { transform: scale(1.3); opacity: 0.7; }
+            }
         }
     }
 
-    /* ==================== MAIN LAYOUT ==================== */
+    // ==================== MAIN LAYOUT ====================
     .ai-trader-main {
         display: flex;
         flex: 1;
         overflow: hidden;
+        gap: 0;
+        position: relative;
 
         .settings-panel {
-            width: 320px;
-            background: var(--background-secondary, #f8f9fa);
-            border-right: 1px solid #e5e7eb;
-            overflow-y: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba($primary-dark, 0.98) 0%, rgba($primary-light, 0.98) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba($accent-primary, 0.15);
+            border-radius: 16px;
+            z-index: 1000;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            animation: slideInUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+            @keyframes slideInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
 
             .settings-header {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                padding: 16px;
-                border-bottom: 1px solid #e5e7eb;
-                background: white;
+                padding: 24px;
+                border-bottom: 1px solid rgba($accent-primary, 0.1);
+                background: radial-gradient(circle at 0% 0%, rgba($accent-primary, 0.08) 0%, transparent 100%);
 
-                h3 {
+                .header-title {
+                    font-size: 20px;
+                    font-weight: 600;
+                    color: $text-primary;
                     margin: 0;
-                    font-size: 14px;
-                    font-weight: 700;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                    color: #111;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    letter-spacing: -0.5px;
+
+                    span {
+                        font-size: 24px;
+                        opacity: 0.9;
+                    }
                 }
 
                 .close-btn {
-                    background: none;
-                    border: none;
-                    font-size: 18px;
+                    background: rgba($accent-primary, 0.1);
+                    border: 1px solid rgba($accent-primary, 0.2);
+                    border-radius: 8px;
+                    width: 36px;
+                    height: 36px;
+                    font-size: 20px;
                     cursor: pointer;
-                    color: #6b7280;
+                    color: $text-primary;
+                    transition: all 0.2s ease;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
 
                     &:hover {
-                        color: #111;
+                        background: rgba($accent-primary, 0.2);
+                        border-color: rgba($accent-primary, 0.3);
+                        transform: scale(1.05);
+                    }
+
+                    &:active {
+                        transform: scale(0.95);
                     }
                 }
             }
 
             .settings-content {
+                flex: 1;
+                overflow-y: auto;
+                padding: 24px;
                 display: flex;
                 flex-direction: column;
                 gap: 24px;
-                padding: 16px;
-                flex: 1;
+
+                /* Custom Scrollbar */
+                &::-webkit-scrollbar {
+                    width: 8px;
+                }
+
+                &::-webkit-scrollbar-track {
+                    background: rgba($accent-primary, 0.05);
+                    border-radius: 8px;
+                }
+
+                &::-webkit-scrollbar-thumb {
+                    background: rgba($accent-primary, 0.2);
+                    border-radius: 8px;
+
+                    &:hover {
+                        background: rgba($accent-primary, 0.3);
+                    }
+                }
+            }
+        }
+
+        .settings-section {
+            background: rgba($accent-primary, 0.05);
+            border: 1px solid rgba($accent-primary, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+
+            &:hover {
+                border-color: rgba($accent-primary, 0.2);
+                background: rgba($accent-primary, 0.08);
             }
 
-            .settings-section {
+            .section-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                padding-bottom: 12px;
+                border-bottom: 2px solid rgba($accent-primary, 0.15);
+
                 h4 {
-                    margin: 0 0 12px 0;
-                    font-size: 12px;
-                    font-weight: 700;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                    color: #6b7280;
-                }
-
-                .setting-group {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 6px;
-                    margin-bottom: 12px;
-
-                    label {
-                        font-size: 13px;
-                        font-weight: 600;
-                        color: #374151;
-                    }
-
-                    input[type='number'],
-                    input[type='range'] {
-                        padding: 8px 10px;
-                        border: 1px solid #e5e7eb;
-                        border-radius: 6px;
-                        font-size: 13px;
-                        background: white;
-
-                        &:focus {
-                            outline: none;
-                            border-color: #667eea;
-                            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-                        }
-                    }
-
-                    .input-group {
-                        display: flex;
-                        gap: 8px;
-                        align-items: center;
-
-                        input {
-                            flex: 1;
-                        }
-
-                        .currency,
-                        .label {
-                            font-size: 12px;
-                            font-weight: 600;
-                            color: #6b7280;
-                            min-width: 30px;
-                        }
-                    }
-
-                    .slider-group {
-                        display: flex;
-                        gap: 8px;
-                        align-items: center;
-
-                        input[type='range'] {
-                            flex: 1;
-                            cursor: pointer;
-                        }
-
-                        .value {
-                            font-size: 12px;
-                            font-weight: 700;
-                            color: #667eea;
-                            min-width: 35px;
-                            text-align: right;
-                        }
-                    }
-
-                    &.checkbox {
-                        flex-direction: row;
-                        align-items: center;
-
-                        label {
-                            display: flex;
-                            align-items: center;
-                            gap: 8px;
-                            margin: 0;
-                            cursor: pointer;
-
-                            input[type='checkbox'] {
-                                cursor: pointer;
-                                width: 16px;
-                                height: 16px;
-                            }
-                        }
-                    }
-                }
-            }
-
-            .markets-grid {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 8px;
-
-                .market-checkbox {
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: $text-primary;
+                    margin: 0;
                     display: flex;
                     align-items: center;
-                    gap: 10px;
-                    padding: 10px;
-                    border: 1px solid #e5e7eb;
-                    border-radius: 6px;
-                    background: white;
+                    gap: 8px;
+                    letter-spacing: -0.3px;
+                }
+
+                .section-count {
+                    background: rgba($accent-primary, 0.15);
+                    color: $accent-primary;
+                    padding: 4px 12px;
+                    border-radius: 8px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+            }
+        }
+
+        .setting-group {
+            margin-bottom: 18px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            .label-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+
+                label {
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: $text-primary;
+                    display: block;
+                }
+
+                .hint {
+                    font-size: 12px;
+                    color: $text-muted;
+                    font-weight: 400;
+                }
+            }
+
+            .input-wrapper {
+                position: relative;
+                display: flex;
+                align-items: center;
+
+                input[type='number'],
+                input[type='text'] {
+                    width: 100%;
+                    padding: 12px 16px;
+                    padding-right: 40px;
+                    background: rgba(255, 255, 255, 0.08);
+                    border: 1px solid rgba($accent-primary, 0.2);
+                    border-radius: 8px;
+                    color: $text-primary;
+                    font-size: 14px;
+                    font-weight: 500;
+                    transition: all 0.2s ease;
+
+                    &:focus {
+                        outline: none;
+                        background: rgba(255, 255, 255, 0.12);
+                        border-color: $accent-primary;
+                        box-shadow: 0 0 12px rgba($accent-primary, 0.2);
+                    }
+
+                    &:hover {
+                        border-color: rgba($accent-primary, 0.3);
+                        background: rgba(255, 255, 255, 0.1);
+                    }
+
+                    &::placeholder {
+                        color: $text-muted;
+                    }
+                }
+
+                .input-suffix {
+                    position: absolute;
+                    right: 16px;
+                    color: $text-secondary;
+                    font-size: 13px;
+                    font-weight: 500;
+                    pointer-events: none;
+                }
+            }
+
+            .slider-wrapper {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+
+                input[type='range'] {
+                    flex: 1;
+                    height: 6px;
+                    background: linear-gradient(90deg, rgba($accent-primary, 0.2) 0%, rgba($accent-primary, 0.1) 100%);
+                    border-radius: 3px;
+                    outline: none;
+                    -webkit-appearance: none;
+                    appearance: none;
+
+                    &::-webkit-slider-thumb {
+                        -webkit-appearance: none;
+                        appearance: none;
+                        width: 18px;
+                        height: 18px;
+                        background: linear-gradient(135deg, $accent-primary, $accent-secondary);
+                        border: 2px solid rgba(255, 255, 255, 0.2);
+                        border-radius: 50%;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        box-shadow: 0 0 12px rgba($accent-primary, 0.3);
+
+                        &:hover {
+                            transform: scale(1.2);
+                            box-shadow: 0 0 20px rgba($accent-primary, 0.5);
+                        }
+                    }
+
+                    &::-moz-range-thumb {
+                        width: 18px;
+                        height: 18px;
+                        background: linear-gradient(135deg, $accent-primary, $accent-secondary);
+                        border: 2px solid rgba(255, 255, 255, 0.2);
+                        border-radius: 50%;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        box-shadow: 0 0 12px rgba($accent-primary, 0.3);
+
+                        &:hover {
+                            transform: scale(1.2);
+                            box-shadow: 0 0 20px rgba($accent-primary, 0.5);
+                        }
+                    }
+
+                    &:focus {
+                        background: linear-gradient(90deg, rgba($accent-primary, 0.3) 0%, rgba($accent-primary, 0.15) 100%);
+                    }
+                }
+
+                .slider-value {
+                    min-width: 50px;
+                    text-align: right;
+                    color: $accent-primary;
+                    font-size: 13px;
+                    font-weight: 600;
+                    background: rgba($accent-primary, 0.1);
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                }
+            }
+
+            &.checkbox-group {
+                label {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 12px;
                     cursor: pointer;
+                    padding: 12px;
+                    background: rgba($accent-primary, 0.05);
+                    border-radius: 8px;
                     transition: all 0.2s ease;
 
                     &:hover {
-                        background: #f3f4f6;
-                        border-color: #667eea;
+                        background: rgba($accent-primary, 0.1);
                     }
 
                     input[type='checkbox'] {
+                        width: 20px;
+                        height: 20px;
+                        margin-top: 2px;
                         cursor: pointer;
-                        width: 16px;
-                        height: 16px;
+                        accent-color: $accent-primary;
+                        transition: all 0.2s ease;
+
+                        &:hover {
+                            transform: scale(1.1);
+                        }
                     }
 
-                    .market-label {
-                        font-size: 13px;
-                        font-weight: 600;
-                        color: #374151;
+                    .label-text {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 4px;
+
+                        .checkbox-label {
+                            font-size: 14px;
+                            font-weight: 500;
+                            color: $text-primary;
+                        }
+
+                        .checkbox-desc {
+                            font-size: 12px;
+                            color: $text-muted;
+                            line-height: 1.4;
+                        }
                     }
                 }
             }
+        }
 
-            .settings-actions {
+        .markets-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+
+            .market-card {
+                position: relative;
                 display: flex;
-                gap: 8px;
-                margin-top: auto;
-                padding-top: 16px;
-                border-top: 1px solid #e5e7eb;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                padding: 16px;
+                background: rgba(255, 255, 255, 0.06);
+                border: 2px solid rgba($accent-primary, 0.2);
+                border-radius: 10px;
+                cursor: pointer;
+                transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                overflow: hidden;
 
-                button {
-                    flex: 1;
-                    padding: 10px;
-                    border: none;
-                    border-radius: 6px;
-                    font-size: 12px;
-                    font-weight: 700;
+                &::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: radial-gradient(circle at 100% 0%, rgba($accent-primary, 0.1) 0%, transparent 100%);
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                    pointer-events: none;
+                }
+
+                input[type='checkbox'] {
+                    position: absolute;
+                    width: 20px;
+                    height: 20px;
+                    top: 8px;
+                    right: 8px;
                     cursor: pointer;
-                    transition: all 0.2s ease;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
+                    accent-color: $accent-primary;
 
-                    &.btn-apply {
-                        background: #667eea;
-                        color: white;
+                    &:checked + .market-icon {
+                        transform: scale(1.15);
+                        filter: drop-shadow(0 0 8px rgba($accent-primary, 0.5));
+                    }
+                }
 
-                        &:hover {
-                            background: #5568d3;
-                        }
+                &:hover {
+                    border-color: $accent-primary;
+                    background: rgba($accent-primary, 0.1);
+                    transform: translateY(-4px);
+                    box-shadow: 0 8px 20px rgba($accent-primary, 0.15);
+
+                    &::before {
+                        opacity: 1;
+                    }
+                }
+
+                .market-icon {
+                    font-size: 32px;
+                    transition: all 0.3s ease;
+                    opacity: 0.9;
+                }
+
+                .market-details {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 4px;
+                    text-align: center;
+
+                    .market-name {
+                        font-size: 13px;
+                        font-weight: 600;
+                        color: $text-primary;
+                        letter-spacing: -0.3px;
                     }
 
-                    &.btn-reset {
-                        background: #f3f4f6;
-                        color: #6b7280;
-
-                        &:hover {
-                            background: #e5e7eb;
-                        }
+                    .market-type {
+                        font-size: 11px;
+                        color: $text-muted;
+                        font-weight: 500;
+                        text-transform: uppercase;
+                        letter-spacing: 0.3px;
                     }
+                }
+
+                &:has(input[type='checkbox']:checked) {
+                    border-color: $accent-primary;
+                    background: radial-gradient(circle at 100% 0%, rgba($accent-primary, 0.2) 0%, rgba($accent-primary, 0.05) 100%);
+                    box-shadow: 0 0 20px rgba($accent-primary, 0.25);
+                }
+            }
+
+            @media (max-width: 768px) {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .settings-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba($accent-primary, 0.1);
+
+            button {
+                flex: 1;
+                padding: 14px 20px;
+                border: none;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .btn-apply {
+                background: linear-gradient(135deg, $accent-primary 0%, $accent-secondary 100%);
+                color: white;
+                box-shadow: 0 4px 15px rgba($accent-primary, 0.3);
+
+                &:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 25px rgba($accent-primary, 0.4);
+                }
+
+                &:active {
+                    transform: translateY(0);
+                    box-shadow: 0 2px 10px rgba($accent-primary, 0.2);
+                }
+            }
+
+            .btn-reset {
+                background: rgba($accent-primary, 0.1);
+                color: $accent-primary;
+                border: 1px solid rgba($accent-primary, 0.3);
+
+                &:hover {
+                    background: rgba($accent-primary, 0.15);
+                    border-color: rgba($accent-primary, 0.5);
+                }
+
+                &:active {
+                    background: rgba($accent-primary, 0.12);
                 }
             }
         }
@@ -368,188 +773,232 @@
             display: flex;
             flex-direction: column;
             overflow-y: auto;
-            padding: 20px;
-            gap: 20px;
+            padding: 28px;
+            gap: 24px;
+            width: 100%;
 
-            &.with-sidebar {
-                width: calc(100% - 320px);
+            &::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            &::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            &::-webkit-scrollbar-thumb {
+                background: rgba(0, 212, 255, 0.2);
+                border-radius: 4px;
+
+                &:hover {
+                    background: rgba(0, 212, 255, 0.4);
+                }
             }
         }
     }
 
-    /* ==================== STATS GRID ==================== */
+    // ==================== STATS GRID ====================
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
 
         .stat-card {
-            background: white;
+            position: relative;
+            background: linear-gradient(135deg, rgba(30, 39, 73, 0.6) 0%, rgba(15, 20, 40, 0.4) 100%);
+            border: 1px solid $border-color;
             border-radius: 12px;
-            padding: 16px;
+            padding: 20px;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            border: 1px solid #e5e7eb;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+
+            &::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: radial-gradient(ellipse at top right, rgba(0, 212, 255, 0.1), transparent);
+                opacity: 0;
+                transition: opacity 0.3s;
+                pointer-events: none;
+            }
 
             &:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+                transform: translateY(-6px);
+                border-color: $accent-primary;
+                box-shadow: 0 12px 32px rgba(0, 212, 255, 0.15);
+
+                &::before {
+                    opacity: 1;
+                }
             }
 
             .stat-icon {
-                font-size: 28px;
-                min-width: 40px;
-                text-align: center;
+                font-size: 32px;
+                filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
             }
 
-            .stat-info {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-                flex: 1;
+            .stat-label {
+                font-size: 10px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: $text-muted;
+                font-weight: 800;
+            }
 
-                .stat-label {
-                    font-size: 11px;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                    color: #6b7280;
-                    font-weight: 600;
-                }
+            .stat-value {
+                font-size: 24px;
+                font-weight: 900;
+                color: $text-primary;
+                letter-spacing: -1px;
+            }
 
+            &.accent {
                 .stat-value {
-                    font-size: 18px;
-                    font-weight: 700;
-                    color: #111;
+                    color: $accent-primary;
                 }
-            }
 
-            &.primary {
-                border-color: #667eea;
-                background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-            }
-
-            &.positive {
-                border-color: #10b981;
-                background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%);
-
-                .stat-value {
-                    color: #10b981;
-                }
-            }
-
-            &.negative {
-                border-color: #ef4444;
-                background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(220, 38, 38, 0.05) 100%);
-
-                .stat-value {
-                    color: #ef4444;
-                }
-            }
-
-            &.info {
-                border-color: #3b82f6;
-                background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
+                border-color: rgba(0, 212, 255, 0.2);
+                background: linear-gradient(135deg, rgba(0, 212, 255, 0.08) 0%, rgba(0, 168, 204, 0.04) 100%);
             }
 
             &.success {
-                border-color: #06b6d4;
-                background: linear-gradient(135deg, rgba(6, 182, 212, 0.05) 0%, rgba(8, 145, 178, 0.05) 100%);
+                .stat-value {
+                    color: $success-color;
+                }
+
+                border-color: rgba(16, 185, 129, 0.2);
+                background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.04) 100%);
+            }
+
+            &.warning {
+                .stat-value {
+                    color: $warning-color;
+                }
+
+                border-color: rgba(245, 158, 11, 0.2);
+                background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0.04) 100%);
+            }
+
+            &.danger {
+                .stat-value {
+                    color: $danger-color;
+                }
+
+                border-color: rgba(239, 68, 68, 0.2);
+                background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.04) 100%);
             }
         }
     }
 
-    /* ==================== ANALYSIS SECTION ==================== */
+    // ==================== ANALYSIS SECTION ====================
     .analysis-section {
         h3 {
-            margin: 0 0 12px 0;
-            font-size: 14px;
-            font-weight: 700;
-            color: #111;
+            margin: 0 0 14px 0;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: $accent-primary;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .analysis-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 12px;
 
             .analysis-card {
-                background: white;
-                border-radius: 12px;
+                background: linear-gradient(135deg, rgba(30, 39, 73, 0.6) 0%, rgba(15, 20, 40, 0.4) 100%);
+                border: 1px solid $border-color;
+                border-radius: 10px;
                 padding: 14px;
-                border: 1px solid #e5e7eb;
                 display: flex;
                 flex-direction: column;
                 gap: 8px;
+                transition: all 0.2s;
+                backdrop-filter: blur(10px);
+
+                &:hover {
+                    border-color: $accent-primary;
+                    transform: translateY(-2px);
+                }
 
                 .card-label {
-                    font-size: 11px;
+                    font-size: 10px;
                     text-transform: uppercase;
                     letter-spacing: 0.5px;
-                    color: #6b7280;
-                    font-weight: 600;
+                    color: $text-muted;
+                    font-weight: 800;
                 }
 
                 .card-value {
-                    font-size: 16px;
-                    font-weight: 700;
-                    color: #111;
+                    font-size: 18px;
+                    font-weight: 900;
+                    color: $text-primary;
 
                     &.positive {
-                        color: #10b981;
+                        color: $success-color;
                     }
 
                     &.negative {
-                        color: #ef4444;
-                    }
-
-                    &.text-right {
-                        text-align: right;
+                        color: $danger-color;
                     }
                 }
 
                 .rsi-bar {
                     width: 100%;
-                    height: 6px;
-                    background: #e5e7eb;
-                    border-radius: 3px;
+                    height: 4px;
+                    background: rgba(0, 212, 255, 0.1);
+                    border-radius: 2px;
                     overflow: hidden;
+                    margin-top: 4px;
 
                     .rsi-value {
                         height: 100%;
-                        background: linear-gradient(90deg, #ef4444 0%, #f59e0b 33%, #fbbf24 66%, #10b981 100%);
+                        background: linear-gradient(90deg, $danger-color 0%, $warning-color 40%, $success-color 100%);
                         transition: width 0.3s ease;
-                        border-radius: 3px;
+                        border-radius: 2px;
+                        box-shadow: 0 0 6px rgba(0, 212, 255, 0.3);
                     }
                 }
             }
         }
     }
 
-    /* ==================== HISTORY SECTION ==================== */
+    // ==================== HISTORY SECTION ====================
     .history-section {
         display: flex;
         flex-direction: column;
         flex: 1;
         min-height: 300px;
+        gap: 12px;
 
         h3 {
-            margin: 0 0 12px 0;
-            font-size: 14px;
-            font-weight: 700;
-            color: #111;
+            margin: 0;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: $accent-primary;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .trade-history-container {
             flex: 1;
-            background: white;
+            background: linear-gradient(135deg, rgba(30, 39, 73, 0.4) 0%, rgba(15, 20, 40, 0.4) 100%);
+            border: 1px solid $border-color;
             border-radius: 12px;
-            border: 1px solid #e5e7eb;
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            backdrop-filter: blur(10px);
 
             .empty-state {
                 display: flex;
@@ -558,16 +1007,18 @@
                 justify-content: center;
                 height: 100%;
                 gap: 12px;
-                color: #9ca3af;
+                color: $text-muted;
 
                 .empty-icon {
-                    font-size: 40px;
-                    opacity: 0.5;
+                    font-size: 48px;
+                    opacity: 0.4;
                 }
 
                 p {
                     margin: 0;
-                    font-size: 13px;
+                    font-size: 12px;
+                    text-align: center;
+                    font-weight: 600;
                 }
             }
 
@@ -576,16 +1027,33 @@
                 flex-direction: column;
                 overflow-y: auto;
 
+                &::-webkit-scrollbar {
+                    width: 6px;
+                }
+
+                &::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+
+                &::-webkit-scrollbar-thumb {
+                    background: rgba(0, 212, 255, 0.2);
+                    border-radius: 3px;
+
+                    &:hover {
+                        background: rgba(0, 212, 255, 0.4);
+                    }
+                }
+
                 .trade-row {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
                     padding: 12px 14px;
-                    border-bottom: 1px solid #f3f4f6;
-                    transition: background 0.2s ease;
+                    border-bottom: 1px solid rgba(0, 212, 255, 0.05);
+                    transition: all 0.2s;
 
                     &:hover {
-                        background: #f9fafb;
+                        background: rgba(0, 212, 255, 0.05);
                     }
 
                     &:last-child {
@@ -593,18 +1061,18 @@
                     }
 
                     &.win {
-                        background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
-                        border-left: 3px solid #10b981;
+                        background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, transparent 100%);
+                        border-left: 3px solid $success-color;
                     }
 
                     &.loss {
-                        background: linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, transparent 100%);
-                        border-left: 3px solid #ef4444;
+                        background: linear-gradient(90deg, rgba(239, 68, 68, 0.08) 0%, transparent 100%);
+                        border-left: 3px solid $danger-color;
                     }
 
                     &.pending {
-                        background: linear-gradient(90deg, rgba(245, 158, 11, 0.05) 0%, transparent 100%);
-                        border-left: 3px solid #f59e0b;
+                        background: linear-gradient(90deg, rgba(245, 158, 11, 0.08) 0%, transparent 100%);
+                        border-left: 3px solid $warning-color;
                     }
 
                     .trade-main {
@@ -619,20 +1087,22 @@
                             align-items: center;
 
                             .recovery-badge {
-                                background: #2563eb;
+                                background: linear-gradient(135deg, $accent-tertiary 0%, $accent-secondary 100%);
                                 color: white;
                                 padding: 2px 6px;
                                 border-radius: 4px;
-                                font-size: 9px;
-                                font-weight: 700;
+                                font-size: 8px;
+                                font-weight: 800;
                                 text-transform: uppercase;
                                 letter-spacing: 0.3px;
+                                box-shadow: 0 2px 6px rgba(0, 120, 212, 0.2);
                             }
 
                             .trade-type {
-                                font-size: 12px;
-                                font-weight: 700;
-                                color: #111;
+                                font-size: 11px;
+                                font-weight: 800;
+                                color: $text-primary;
+                                text-transform: uppercase;
                                 min-width: 40px;
                             }
                         }
@@ -643,16 +1113,17 @@
                             gap: 2px;
 
                             .trade-market {
-                                font-size: 11px;
-                                color: #6b7280;
+                                font-size: 10px;
+                                color: $text-muted;
                                 text-transform: uppercase;
                                 letter-spacing: 0.3px;
-                                font-weight: 600;
+                                font-weight: 800;
                             }
 
                             .trade-time {
-                                font-size: 10px;
-                                color: #9ca3af;
+                                font-size: 9px;
+                                color: rgba($text-muted, 0.7);
+                                font-weight: 600;
                             }
                         }
                     }
@@ -661,30 +1132,31 @@
                         display: flex;
                         gap: 12px;
                         align-items: center;
-                        font-weight: 600;
+                        font-weight: 800;
 
                         .trade-amount {
-                            font-size: 12px;
-                            color: #374151;
+                            font-size: 11px;
+                            color: $text-primary;
                             min-width: 50px;
                             text-align: right;
                         }
 
                         .trade-result {
-                            font-size: 13px;
+                            font-size: 12px;
                             min-width: 70px;
                             text-align: right;
+                            font-weight: 900;
 
                             &.win {
-                                color: #10b981;
+                                color: $success-color;
                             }
 
                             &.loss {
-                                color: #ef4444;
+                                color: $danger-color;
                             }
 
                             &.pending {
-                                color: #f59e0b;
+                                color: $warning-color;
                             }
                         }
                     }
@@ -693,63 +1165,71 @@
         }
     }
 
-    /* ==================== RESPONSIVE ==================== */
-    @media (max-width: 1200px) {
+    // ==================== RESPONSIVE ====================
+    @media (max-width: 1400px) {
         .ai-trader-main {
             .settings-panel {
-                width: 280px;
-            }
-
-            .content-area {
-                &.with-sidebar {
-                    width: calc(100% - 280px);
-                }
+                width: 90%;
+                left: 5%;
+                right: 5%;
             }
         }
 
         .stats-grid {
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
         }
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 1024px) {
         .ai-trader-header {
-            padding: 14px 16px;
+            padding: 18px 24px;
 
             .header-content {
-                flex-direction: column;
-                gap: 12px;
-                align-items: flex-start;
+                gap: 24px;
 
                 .header-info {
-                    h1 {
-                        font-size: 22px;
+                    gap: 12px;
+
+                    .header-logo-section {
+                        width: 48px;
+                        height: 48px;
+                        font-size: 24px;
                     }
 
-                    p {
-                        font-size: 12px;
+                    .title-section {
+                        h1 {
+                            font-size: 24px;
+                        }
+
+                        p {
+                            font-size: 11px;
+                        }
                     }
                 }
 
+                .header-stats {
+                    gap: 16px;
+                }
+
                 .header-actions {
-                    width: 100%;
-                    justify-content: flex-end;
+                    .control-btn {
+                        padding: 9px 18px;
+                        font-size: 11px;
+                    }
                 }
             }
         }
 
         .ai-trader-main {
-            flex-direction: column;
-
             .settings-panel {
-                width: 100%;
-                border-right: none;
-                border-top: 1px solid #e5e7eb;
-                max-height: 50vh;
+                width: auto;
+                left: 5%;
+                right: 5%;
+                max-height: 70vh;
             }
 
             .content-area {
-                width: 100% !important;
+                padding: 20px;
             }
         }
 
@@ -762,36 +1242,485 @@
         }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 768px) {
         .ai-trader-header {
+            padding: 14px 16px;
+
             .header-content {
-                .header-actions {
-                    .ai-btn {
-                        font-size: 12px;
-                        padding: 8px 12px;
+                flex-direction: column;
+                gap: 12px;
+
+                .header-info {
+                    width: 100%;
+                    order: 2;
+
+                    .title-section {
+                        h1 {
+                            font-size: 20px;
+                        }
+
+                        p {
+                            font-size: 10px;
+                        }
                     }
                 }
+
+                .header-stats {
+                    border: none;
+                    padding: 0;
+                    width: 100%;
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 12px;
+                    order: 1;
+                }
+
+                .header-actions {
+                    width: 100%;
+                    gap: 8px;
+
+                    .control-btn {
+                        padding: 8px 14px;
+                        font-size: 10px;
+                    }
+
+                    .settings-btn {
+                        width: 40px;
+                        height: 40px;
+                    }
+                }
+            }
+
+            .live-indicator {
+                top: 14px;
+                right: 16px;
+                font-size: 9px;
+
+                .pulse-dot {
+                    width: 8px;
+                    height: 8px;
+                }
+            }
+        }
+
+        .ai-trader-main {
+            .settings-panel {
+                left: 10px;
+                right: 10px;
+                max-height: 90vh;
+                border-radius: 12px;
+
+                .settings-header {
+                    padding: 16px;
+
+                    .header-title {
+                        font-size: 16px;
+                        gap: 8px;
+
+                        span {
+                            font-size: 20px;
+                        }
+                    }
+
+                    .close-btn {
+                        width: 32px;
+                        height: 32px;
+                        font-size: 18px;
+                    }
+                }
+
+                .settings-content {
+                    padding: 16px;
+                    gap: 16px;
+                }
+            }
+
+            .settings-section {
+                padding: 14px;
+
+                .section-header {
+                    margin-bottom: 12px;
+                    padding-bottom: 8px;
+
+                    h4 {
+                        font-size: 14px;
+                    }
+
+                    .section-count {
+                        font-size: 11px;
+                        padding: 3px 10px;
+                    }
+                }
+            }
+
+            .setting-group {
+                margin-bottom: 14px;
+
+                .label-row {
+                    margin-bottom: 6px;
+
+                    label {
+                        font-size: 13px;
+                    }
+
+                    .hint {
+                        font-size: 11px;
+                    }
+                }
+
+                .input-wrapper input {
+                    font-size: 13px;
+                    padding: 10px 12px;
+                    padding-right: 36px;
+                }
+
+                .input-suffix {
+                    right: 12px;
+                    font-size: 12px;
+                }
+            }
+
+            .markets-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+
+                .market-card {
+                    padding: 12px;
+                    border-radius: 8px;
+                    gap: 8px;
+
+                    .market-icon {
+                        font-size: 28px;
+                    }
+
+                    .market-details {
+                        .market-name {
+                            font-size: 12px;
+                        }
+
+                        .market-type {
+                            font-size: 10px;
+                        }
+                    }
+                }
+            }
+
+            .settings-actions {
+                gap: 10px;
+                margin-top: 16px;
+                padding-top: 12px;
+
+                button {
+                    padding: 12px 16px;
+                    font-size: 12px;
+                }
+            }
+
+            .content-area {
+                padding: 14px;
             }
         }
 
         .stats-grid {
             grid-template-columns: 1fr;
+            gap: 12px;
+
+            .stat-card {
+                padding: 16px;
+                border-radius: 10px;
+            }
         }
 
         .analysis-grid {
             grid-template-columns: 1fr !important;
+            gap: 10px;
         }
 
         .history-section {
             .trade-list {
                 .trade-row {
-                    flex-direction: column;
-                    gap: 8px;
-                    align-items: flex-start;
+                    padding: 10px 12px;
+
+                    .trade-details {
+                        gap: 2px;
+
+                        .trade-market {
+                            font-size: 9px;
+                        }
+
+                        .trade-time {
+                            font-size: 8px;
+                        }
+                    }
 
                     .trade-outcome {
+                        gap: 8px;
+
+                        .trade-amount {
+                            font-size: 10px;
+                        }
+
+                        .trade-result {
+                            font-size: 11px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @media (max-width: 480px) {
+        .ai-trader-header {
+            padding: 12px;
+
+            .header-content {
+                gap: 8px;
+
+                .header-info {
+                    .title-section {
+                        h1 {
+                            font-size: 18px;
+                        }
+
+                        p {
+                            font-size: 9px;
+                        }
+                    }
+                }
+
+                .header-stats {
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 8px;
+
+                    .stat {
+                        .stat-value {
+                            font-size: 14px;
+                        }
+
+                        .stat-label {
+                            font-size: 9px;
+                        }
+                    }
+                }
+
+                .header-actions {
+                    flex-direction: column;
+
+                    .control-btn {
                         width: 100%;
-                        justify-content: space-between;
+                        padding: 10px;
+                        font-size: 11px;
+                    }
+
+                    .settings-btn {
+                        width: 100%;
+                        height: auto;
+                        padding: 10px;
+                    }
+                }
+            }
+
+            .live-indicator {
+                display: none;
+            }
+        }
+
+        .ai-trader-main {
+            .settings-panel {
+                left: 5px;
+                right: 5px;
+                max-height: 95vh;
+                border-radius: 8px;
+
+                .settings-header {
+                    padding: 12px;
+
+                    .header-title {
+                        font-size: 14px;
+                        gap: 6px;
+
+                        span {
+                            font-size: 18px;
+                        }
+                    }
+
+                    .close-btn {
+                        width: 28px;
+                        height: 28px;
+                        font-size: 16px;
+                    }
+                }
+
+                .settings-content {
+                    padding: 12px;
+                    gap: 12px;
+                }
+            }
+
+            .settings-section {
+                padding: 10px;
+
+                .section-header {
+                    margin-bottom: 10px;
+                    padding-bottom: 6px;
+
+                    h4 {
+                        font-size: 12px;
+                    }
+
+                    .section-count {
+                        font-size: 10px;
+                        padding: 2px 6px;
+                    }
+                }
+            }
+
+            .setting-group {
+                margin-bottom: 10px;
+
+                .label-row {
+                    margin-bottom: 4px;
+
+                    label {
+                        font-size: 12px;
+                    }
+
+                    .hint {
+                        font-size: 10px;
+                    }
+                }
+
+                .input-wrapper input {
+                    font-size: 12px;
+                    padding: 8px 10px;
+                    padding-right: 32px;
+
+                    &::placeholder {
+                        font-size: 11px;
+                    }
+                }
+
+                .slider-wrapper {
+                    gap: 8px;
+
+                    .slider-value {
+                        min-width: 40px;
+                        font-size: 11px;
+                    }
+                }
+            }
+
+            .markets-container {
+                grid-template-columns: 1fr;
+                gap: 8px;
+
+                .market-card {
+                    padding: 10px;
+                    border-radius: 6px;
+                    gap: 6px;
+
+                    .market-icon {
+                        font-size: 24px;
+                    }
+
+                    .market-details {
+                        .market-name {
+                            font-size: 11px;
+                        }
+
+                        .market-type {
+                            font-size: 9px;
+                        }
+                    }
+                }
+            }
+
+            .settings-actions {
+                padding-top: 10px;
+                margin-top: 12px;
+                gap: 8px;
+
+                button {
+                    padding: 10px 12px;
+                    font-size: 11px;
+                }
+            }
+
+            .content-area {
+                padding: 12px;
+                gap: 16px;
+            }
+        }
+
+        .stats-grid {
+            gap: 10px;
+
+            .stat-card {
+                padding: 14px;
+
+                .stat-icon {
+                    font-size: 28px;
+                }
+
+                .stat-label {
+                    font-size: 9px;
+                }
+
+                .stat-value {
+                    font-size: 20px;
+                }
+            }
+        }
+
+        .analysis-grid {
+            gap: 8px;
+
+            .analysis-card {
+                padding: 12px;
+
+                .card-label {
+                    font-size: 9px;
+                }
+
+                .card-value {
+                    font-size: 16px;
+                }
+            }
+        }
+
+        .history-section {
+            min-height: 200px;
+
+            .trade-list {
+                .trade-row {
+                    padding: 8px 10px;
+                    gap: 6px;
+
+                    .trade-main {
+                        gap: 8px;
+
+                        .trade-marker {
+                            gap: 4px;
+
+                            .recovery-badge {
+                                font-size: 7px;
+                                padding: 1px 4px;
+                            }
+
+                            .trade-type {
+                                font-size: 10px;
+                            }
+                        }
+                    }
+
+                    .trade-outcome {
+                        .trade-amount {
+                            font-size: 9px;
+                        }
+
+                        .trade-result {
+                            font-size: 10px;
+                        }
                     }
                 }
             }
